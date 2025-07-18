@@ -82,3 +82,26 @@ jobs:
         run: |
           cd marketplace
           npx supabase functions deploy --project-ref $SUPABASE_PROJECT_ID
+
+  deploy-to-netlify:
+    name: Deploy to Netlify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm run build
+
+      - name: Deploy to Netlify
+        run: |
+          cd marketplace
+          npm install -g netlify-cli
+          netlify deploy \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --site ${{ secrets.NETLIFY_SITE_ID }} \
+            --prod \
+            --dir=dist
