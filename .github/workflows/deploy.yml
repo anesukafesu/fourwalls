@@ -26,6 +26,7 @@ jobs:
           git add .
           git commit -m "Auto deploy Embeddings API"
           git push --force origin main
+        working-directory: ./embeddings
 
   deploy-chat-api:
     name: Deploy to Chat Space
@@ -45,6 +46,7 @@ jobs:
           git add .
           git commit -m "Auto deploy Chat API"
           git push --force origin main
+        working-directory: ./chat
 
   deploy-recommendations:
     name: Deploy to Recommendations Space
@@ -55,7 +57,6 @@ jobs:
 
       - name: Push Recommendations code to Hugging Face
         run: |
-          cd recommendations
           git init
           git lfs install
           git lfs track "*.png" "*.jpg" "*.jpeg" "*.h5"
@@ -67,6 +68,7 @@ jobs:
           git add .
           git commit -m "Auto deploy Recommendations API"
           git push --force origin main
+        working-directory: ./recommendations
 
   deploy-marketplace-functions:
     name: Deploy Marketplace Supabase functions
@@ -80,8 +82,8 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
         run: |
-          cd marketplace
           npx supabase functions deploy --project-ref $SUPABASE_PROJECT_ID
+        working-directory: ./marketplace
 
   deploy-to-netlify:
     name: Deploy to Netlify
@@ -91,14 +93,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Navigate to marketplace directory
-        run: |
-          cd marketplace
-
       - name: Install dependencies and build
         run: |
           npm install
           npm run build
+        working-directory: ./marketplace
 
       - name: Deploy to Netlify
         run: |
@@ -108,3 +107,4 @@ jobs:
             --site ${{ secrets.NETLIFY_SITE_ID }} \
             --prod \
             --dir=dist
+        working-directory: ./marketplace
