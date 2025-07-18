@@ -14,7 +14,6 @@ jobs:
 
       - name: Push Embeddings code to Hugging Face
         run: |
-          cd embeddings
           git init
           git lfs install
           git lfs track "*.png" "*.jpg" "*.jpeg" "*.h5"
@@ -37,7 +36,6 @@ jobs:
 
       - name: Push Chat code to Hugging Face
         run: |
-          cd chat
           git init
           git config user.name "Anesu Kafesu"
           git config user.email "a.kafesu@alustudent.com"
@@ -92,12 +90,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Install dependencies and build
-        run: |
-          npm install
-          npm run build
-        working-directory: ./marketplace
 
       - name: Deploy to Netlify
         run: |
