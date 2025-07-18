@@ -1,0 +1,29 @@
+
+{
+  "manifest_version": 3,
+  "name": "Facebook Post Extractor",
+  "version": "1.0",
+  "description": "Extract Facebook posts to listings buffer",
+  "permissions": [
+    "contextMenus",
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.facebook.com/*",
+    "https://*.fb.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.facebook.com/*", "https://*.fb.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Facebook Post Extractor"
+  }
+}

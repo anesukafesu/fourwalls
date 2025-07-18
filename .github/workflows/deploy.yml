@@ -1,0 +1,72 @@
+name: Deploy Code
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-embeddings:
+    name: Deploy to Embeddings Space
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v3
+
+      - name: Push Embeddings code to Hugging Face
+        run: |
+          cd embeddings
+          git init
+          git config user.name "Anesu Kafesu"
+          git config user.email "a.kafesu@alustudent.com"
+          git remote add origin https://akafesu:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/akafesu/fourwalls-embeddings-api
+          git add .
+          git commit -m "Auto deploy Embeddings API"
+          git push --force origin main
+
+  deploy-chat:
+    name: Deploy to Chat Space
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v3
+
+      - name: Push Chat code to Hugging Face
+        run: |
+          cd chat
+          git init
+          git config user.name "Anesu Kafesu"
+          git config user.email "a.kafesu@alustudent.com"
+          git remote add origin https://akafesu:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/akafesu/fourwalls-chat-api
+          git add .
+          git commit -m "Auto deploy Chat API"
+          git push --force origin main
+  
+  deploy-chat:
+    name: Deploy to Recommendations Space
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v3
+
+      - name: Push Recommendations code to Hugging Face
+        run: |
+          cd recommendations
+          git init
+          git config user.name "Anesu Kafesu"
+          git config user.email "a.kafesu@alustudent.com"
+          git remote add origin https://akafesu:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/akafesu/fourwalls-recommendations-api
+          git add .
+          git commit -m "Auto deploy Recommendations API"
+          git push --force origin main
+
+  deploy-marketplace-functions:
+    name: Deploy Marketplace Supabase functions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v3
+      
+      - name: Deploy Supabase Functions
+        run: |
+          cd marketplace
+          npx supabase functions deploy

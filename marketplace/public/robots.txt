@@ -1,0 +1,56 @@
+
+User-agent: *
+Disallow: /admin
+Disallow: /chat
+Disallow: /properties/create
+Disallow: /properties/edit
+Disallow: /api/
+Disallow: /auth
+
+# Prohibit data scraping and automated crawling
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+User-agent: SimilarTechBot
+Disallow: /
+
+User-agent: ScreamingFrogSEOSpider
+Disallow: /
+
+User-agent: SiteAuditBot
+Disallow: /
+
+User-agent: *
+Crawl-delay: 10
+
+# Allow legitimate search engines with restrictions
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+Disallow: /chat
+Disallow: /properties/create
+Disallow: /properties/edit
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
+Disallow: /chat
+Disallow: /properties/create
+Disallow: /properties/edit
+
+Sitemap: https://yourdomain.com/sitemap.xml
