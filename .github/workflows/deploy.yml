@@ -16,6 +16,9 @@ jobs:
         run: |
           cd embeddings
           git init
+          git lfs install
+          git lfs track "*.png" "*.jpg" "*.jpeg" "*.h5"
+          git add .gitattributes
           git config user.name "Anesu Kafesu"
           git config user.email "a.kafesu@alustudent.com"
           git checkout -b main
@@ -54,6 +57,9 @@ jobs:
         run: |
           cd recommendations
           git init
+          git lfs install
+          git lfs track "*.png" "*.jpg" "*.jpeg" "*.h5"
+          git add .gitattributes
           git config user.name "Anesu Kafesu"
           git config user.email "a.kafesu@alustudent.com"
           git checkout -b main
