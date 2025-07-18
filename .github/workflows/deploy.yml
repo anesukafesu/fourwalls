@@ -23,7 +23,7 @@ jobs:
           git commit -m "Auto deploy Embeddings API"
           git push --force origin main
 
-  deploy-chat:
+  deploy-chat-api:
     name: Deploy to Chat Space
     runs-on: ubuntu-latest
     steps:
@@ -40,8 +40,8 @@ jobs:
           git add .
           git commit -m "Auto deploy Chat API"
           git push --force origin main
-  
-  deploy-chat:
+
+  deploy-recommendations:
     name: Deploy to Recommendations Space
     runs-on: ubuntu-latest
     steps:
