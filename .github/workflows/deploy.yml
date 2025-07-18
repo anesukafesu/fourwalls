@@ -91,14 +91,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install dependencies
+      - name: Navigate to marketplace directory
+        run: |
+          cd marketplace
+
+      - name: Install dependencies and build
         run: |
           npm install
           npm run build
 
       - name: Deploy to Netlify
         run: |
-          cd marketplace
           npm install -g netlify-cli
           netlify deploy \
             --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
