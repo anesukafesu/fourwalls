@@ -1,4 +1,4 @@
-from client import supabase_client
+from supabase_client import client
 
 
 class Neighbourhoods:
