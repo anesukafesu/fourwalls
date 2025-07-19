@@ -5,12 +5,10 @@ class Neighbourhoods:
   def __init__(self):
     self.neighbourhoods = {}
 
-    neighbourhoods = client.table('neighbourhoods').select('id,name').execute()
-    print(neighbourhoods)
+    neighbourhoods = client.table('neighbourhoods').select('id,name').execute().data
     for neighbourhood in neighbourhoods:
-      print(neighbourhood)
-      id = neighbourhood[0]
-      name = neighbourhood[1]
+      id = neighbourhood['id']
+      name = neighbourhood['name']
       self.add_neighourhood(name, id)
     print(self.neighbourhoods)
     return self
