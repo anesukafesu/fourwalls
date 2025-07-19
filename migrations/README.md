@@ -1,8 +1,8 @@
 ---
 title: Fourwalls Migrations Api
-emoji: 🏆
-colorFrom: purple
-colorTo: pink
+emoji: ⚡
+colorFrom: green
+colorTo: blue
 sdk: docker
 pinned: false
 ---
