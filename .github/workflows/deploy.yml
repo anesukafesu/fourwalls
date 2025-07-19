@@ -12,6 +12,10 @@ jobs:
       - name: Checkout main repo
         uses: actions/checkout@v3
 
+      - name: Copy services.json File
+        run: |
+          cp shared/services.json embeddings/services.json
+
       - name: Push Embeddings code to Hugging Face
         run: |
           git init
@@ -34,6 +38,10 @@ jobs:
       - name: Checkout main repo
         uses: actions/checkout@v3
 
+      - name: Copy services.json file
+        run: |
+          cp shared/services.json chat/services.json
+
       - name: Push Chat code to Hugging Face
         run: |
           git init
@@ -52,6 +60,10 @@ jobs:
     steps:
       - name: Checkout main repo
         uses: actions/checkout@v3
+
+      - name: Copy services.json
+        run: |
+          cp shared/services.json recommendations/services.json
 
       - name: Push Recommendations code to Hugging Face
         run: |
