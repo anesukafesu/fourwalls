@@ -79,6 +79,32 @@ jobs:
           git commit -m "Auto deploy Recommendations API"
           git push --force origin main
         working-directory: ./recommendations
+  
+  deploy-migrations:
+    name: Deploy to Migrations Space
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v3
+
+      - name: Copy services.json
+        run: |
+          cp shared/services.json migrations/services.json
+
+      - name: Push Migrations code to Hugging Face
+        run: |
+          git init
+          git lfs install
+          git lfs track "*.png" "*.jpg" "*.jpeg" "*.h5"
+          git add .gitattributes
+          git config user.name "Anesu Kafesu"
+          git config user.email "a.kafesu@alustudent.com"
+          git checkout -b main
+          git remote add origin https://akafesu:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/akafesu/fourwalls-migrations-api
+          git add .
+          git commit -m "Auto deploy Migrations API"
+          git push --force origin main
+        working-directory: ./migrations
 
   deploy-marketplace-functions:
     name: Deploy Marketplace Supabase functions
