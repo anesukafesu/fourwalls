@@ -6,6 +6,9 @@ class Neighbourhoods:
     self.neighbourhoods = {}
 
     neighbourhoods = client.table('neighbourhoods').select('id,name').execute().data
+
+    print(neighbourhoods)
+
     for neighbourhood in neighbourhoods:
       id = neighbourhood['id']
       name = neighbourhood['name']
