@@ -43,7 +43,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { services, loading: servicesLoading, error: servicesError } = useServices();
-  const chatUrl = services?.["CHAT"];
+  const chatUrl = `${services?.["CHAT"]}/chat`;
 
   const {
     sessions,
