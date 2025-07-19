@@ -6,7 +6,9 @@ class Neighbourhoods:
     self.neighbourhoods = {}
 
     neighbourhoods = client.table('neighbourhoods').select('id,name').execute()
+    print(neighbourhoods)
     for neighbourhood in neighbourhoods:
+      print(neighbourhood)
       id = neighbourhood[0]
       name = neighbourhood[1].lower()
       self.add_neighourhood(name, id)
