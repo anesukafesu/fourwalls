@@ -59,11 +59,13 @@ import ContactSubmissions from "./pages/admin/ContactSubmissions";
 import DataDeletionRequests from "./pages/admin/DataDeletionRequests";
 import IncidentReports from "./pages/admin/IncidentReports";
 import AdminLayout from "./components/Admin/AdminLayout";
+import { ServicesProvider } from "./contexts/ServicesContext";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
+    <ServicesProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
@@ -186,6 +188,7 @@ function App() {
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
+    </ServicesProvider>
   );
 }
 

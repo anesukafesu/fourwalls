@@ -1,5 +1,15 @@
-import { createContext, useContext, useState, useEffect, useRef } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +19,7 @@ import { Message } from "@/types/message";
 import { Profile } from "@/types/profile";
 import { ChatContextType } from "@/types/chatContext";
 import { toast } from "sonner";
+import { useServices } from "./ServicesContext";
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
@@ -31,26 +42,79 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isTyping, setIsTyping] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { services, loading: servicesLoading, error: servicesError } = useServices();
+  const chatUrl = services?.["CHAT"];
+
   const {
     sessions,
     isLoading: sessionsLoading,
     createSession,
   } = useChatSessions();
 
-  // Handle URL parameters for new chats
+  const handleSendMessage = async (messageText?: string) => {
+    const messageToSend = messageText || inputMessage.trim();
+    if (!messageToSend || !user || !currentSessionId) return;
+
+    const currentSession = sessions?.find((s) => s.id === currentSessionId);
+    const isAIChat = currentSession?.user_two === null;
+
+    if (isAIChat && (!profile || profile.credits < 1)) {
+      uiToast({
+        title: "Insufficient Credits",
+        description: "You need at least 1 credit to send a message to the AI.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsTyping(true);
+    setInputMessage("");
+
+    try {
+      const accessToken = (await supabase.auth.getSession()).data.session
+        ?.access_token;
+
+      const response = await fetch(chatUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          message: messageToSend,
+          chat_id: currentSessionId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send message");
+      }
+
+      queryClient.invalidateQueries({
+        queryKey: ["chat-messages", currentSessionId],
+      });
+    } catch (error) {
+      console.error("Error in chat:", error);
+      uiToast({
+        title: "Error",
+        description: "Failed to send message",
+        variant: "destructive",
+      });
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
   useEffect(() => {
     const sessionFromUrl = searchParams.get("session");
     const prefillFromUrl = searchParams.get("prefill");
 
     if (sessionFromUrl) {
-      if (sessionFromUrl == "ai") {
-        // Find the user's AI session or create a new one
+      if (sessionFromUrl === "ai") {
         const aiSession = sessions?.find((s) => s.user_two === null);
 
         if (aiSession) {
           setCurrentSessionId(aiSession.id);
-
-          // If there's a prefill message, send it automatically
           if (prefillFromUrl) {
             setTimeout(() => {
               handleSendMessage(prefillFromUrl);
@@ -60,7 +124,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           createSession(null);
         }
       } else {
-        // Check if the session ID from URL matches any existing chat sessions
         const sessionExists = sessions?.some((s) => s.id === sessionFromUrl);
         if (!sessionExists) {
           uiToast({
@@ -70,13 +133,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           });
           return;
         }
-        // If the chat session is found chats, set the session
         setCurrentSessionId(sessionFromUrl);
       }
     }
   }, [searchParams, sessions]);
 
-  // Fetch user profile with credits
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.id],
     queryFn: async () => {
@@ -92,7 +153,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     enabled: !!user,
   });
 
-  // Fetch chat messages for current session
   const { data: messages, isLoading } = useQuery({
     queryKey: ["chat-messages", currentSessionId],
     queryFn: async () => {
@@ -108,7 +168,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     enabled: !!currentSessionId,
   });
 
-  // Mark messages as read when viewing a session
   useEffect(() => {
     if (currentSessionId && user) {
       const markAsRead = async () => {
@@ -116,7 +175,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           await supabase.rpc("mark_messages_as_read", {
             session_id: currentSessionId,
           });
-          // Refresh unread counts
           queryClient.invalidateQueries({
             queryKey: ["unread-counts", user.id],
           });
@@ -128,7 +186,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [currentSessionId, user, queryClient]);
 
-  // Listen for new messages via realtime
   useEffect(() => {
     if (!user) return;
 
@@ -144,9 +201,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         async (payload) => {
           const newMessage = payload.new as Message;
 
-          // Only show toast for messages not sent by current user
           if (newMessage.sent_by !== user.id && newMessage.sent_by !== null) {
-            // Get sender's profile
             const { data: senderProfile } = await supabase
               .from("profiles")
               .select("full_name, email")
@@ -163,7 +218,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
             });
           }
 
-          // Refresh queries
           queryClient.invalidateQueries({ queryKey: ["chat-messages"] });
           queryClient.invalidateQueries({
             queryKey: ["unread-counts", user.id],
@@ -177,7 +231,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, [user, queryClient]);
 
-  // Create AI session if none exists
   const createAISessionMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("User not authenticated");
@@ -202,7 +255,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const findAISession = () => sessions?.find((s) => s.user_two === null);
 
-  // Check for AI session and create if needed
   useEffect(() => {
     if (user && sessions && sessions.length > 0) {
       const aiSession = findAISession();
@@ -226,65 +278,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [user, sessions, sessionsLoading, currentSessionId, searchParams]);
 
-  // Handle sending messages - Updated to accept message parameter
-  const handleSendMessage = async (messageText?: string) => {
-    const messageToSend = messageText || inputMessage.trim();
-    if (!messageToSend || !user || !currentSessionId) return;
-
-    const currentSession = sessions?.find((s) => s.id === currentSessionId);
-    const isAIChat = currentSession?.user_two === null;
-
-    if (isAIChat && (!profile || profile.credits < 1)) {
-      uiToast({
-        title: "Insufficient Credits",
-        description: "You need at least 1 credit to send a message to the AI.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsTyping(true);
-    setInputMessage(""); // Clear input immediately
-
-    try {
-      const accessToken = (await supabase.auth.getSession()).data.session
-        ?.access_token;
-
-      const response = await fetch(
-        "https://akafesu-fourways-chat-api.hf.space/chat",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            message: messageToSend,
-            chat_id: currentSessionId,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to send message");
-      }
-
-      // Refresh messages after sending
-      queryClient.invalidateQueries({
-        queryKey: ["chat-messages", currentSessionId],
-      });
-    } catch (error) {
-      console.error("Error in chat:", error);
-      uiToast({
-        title: "Error",
-        description: "Failed to send message",
-        variant: "destructive",
-      });
-    } finally {
-      setIsTyping(false);
-    }
-  };
-
   const currentSession = sessions?.find((s) => s.id === currentSessionId);
   const isAIChat = currentSession?.user_two === null;
 
@@ -295,7 +288,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       return "Scout";
     }
 
-    // Determine which user is the other user
     const isUserOne = currentSession.user_one === user.id;
     const otherUserProfile = isUserOne
       ? currentSession.user_two_profile
