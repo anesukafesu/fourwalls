@@ -1,0 +1,5 @@
+{
+  "EMBEDDINGS": "https://akafesu-fourwalls-embeddings-api.hf.space",
+  "RECOMMENDATIONS": "https://akafesu-fourwalls-recommendations-api.hf.space",
+  "CHAT": "https://akafesu-chat-api.hf.space",
+}
