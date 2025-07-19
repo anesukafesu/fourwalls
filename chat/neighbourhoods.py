@@ -10,7 +10,7 @@ class Neighbourhoods:
     for neighbourhood in neighbourhoods:
       print(neighbourhood)
       id = neighbourhood[0]
-      name = neighbourhood[1].lower()
+      name = neighbourhood[1]
       self.add_neighourhood(name, id)
     print(self.neighbourhoods)
     return self
