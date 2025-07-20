@@ -10,7 +10,7 @@ async def extract(request: Request):
   if not post_ids or not isinstance(post_ids, list):
     raise HTTPException(status_code=400, detail="post_ids array is required")
 
-  posts_response = supabase.from("listings_buffer").select("*").in("id", post_ids).eq("user_id", user_id).execute()
+  posts_response = supabase.table("listings_buffer").select("*").in("id", post_ids).eq("user_id", user_id).execute()
   if posts_response.get("error"):
     raise HTTPException(status_code=500, detail=posts_response["error"])
 
