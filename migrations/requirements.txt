@@ -2,4 +2,4 @@ fastapi
 uvicorn
 requests
 supabase
-google-generativeai
+google-genai
