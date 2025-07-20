@@ -2,5 +2,6 @@
   "EMBEDDINGS": "https://akafesu-fourwalls-embeddings-api.hf.space",
   "RECOMMENDATIONS": "https://akafesu-fourwalls-recommendations-api.hf.space",
   "CHAT": "https://akafesu-fourwalls-chat-api.hf.space",
-  "SUPABASE": "https://nhwwhpbxlqsdbirdrxmc.supabase.co"
+  "SUPABASE": "https://nhwwhpbxlqsdbirdrxmc.supabase.co",
+  "MIGRATIONS": "https://akafesu-fourwalls-migrations-api.hf.space"
 }

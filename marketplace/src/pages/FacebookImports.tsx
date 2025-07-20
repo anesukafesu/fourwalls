@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Trash2, ExternalLink, Calendar, MessageSquare, Image, Import, CheckSquare, Square, Facebook } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useServices } from '@/contexts/ServicesContext';
 
 interface ListingBuffer {
   id: string;
@@ -24,7 +25,7 @@ const FACEBOOK_APP_ID = '701950319351567';
 const REDIRECT_URI = `${window.location.origin}/facebook-imports`;
 
 const FacebookImports = () => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -34,6 +35,7 @@ const FacebookImports = () => {
   const [parsing, setParsing] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const { services } = useServices();
 
   useEffect(() => {
     if (user) {
@@ -49,17 +51,21 @@ const FacebookImports = () => {
   const handleFacebookCallback = async (code: string) => {
     setImporting(true);
     try {
-      const response = await supabase.functions.invoke('get-listings-from-facebook', {
-        body: { 
+      const response = await fetch(`${services['MIGRATIONS']}/migrate/facebook`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        method: 'POST',
+        body: JSON.stringify({ 
           code: code,
-          user_id: user?.id,
           redirect_uri: REDIRECT_URI
-        }
+        })
       });
 
-      if (response.error) throw response.error;
+      if (!response.ok) throw response.statusText;
 
-      const result = response.data;
+      const result = await response.json();
       toast({
         title: "Success",
         description: result.message || "Facebook posts processed successfully",
