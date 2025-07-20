@@ -81,7 +81,7 @@ def migrate_facebook_posts(payload: Dict[str, str], authorization: str = Header(
 
   if listings_to_insert:
     insert_resp = supabase.table("listings_buffer").insert(listings_to_insert).execute()
-    if insert_resp.get("error"):
+    if insert_resp.error:
       raise HTTPException(status_code=500, detail=insert_resp["error"])
 
   return {
