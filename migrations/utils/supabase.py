@@ -74,6 +74,7 @@ async def upload_properties(properties, user_id):
     if not inserted:
       return {"error": "Failed to insert properties", "details": insert_resp.message}
   except Exception as e:
+    print(e)
     return {"error": "An exception occurred while inserting properties", "details": str(e)}
 
 
