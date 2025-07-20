@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 import time
 import requests
 import os
-
 from utils.supabase import supabase
 from utils.facebook import classify_as_housing, extract_image_urls
 

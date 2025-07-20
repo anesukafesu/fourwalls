@@ -181,16 +181,17 @@ const FacebookImports = () => {
     setParsing(true);
     
     try {
-      const response = await supabase.functions.invoke('parse-posts', {
-        body: { 
+      if (!services) return;
+      const response = await fetch(`${services['MIGRATIONS']}/parse`, {
+        body: JSON.stringify({ 
           post_ids: Array.from(selectedIds),
           user_id: user?.id 
-        }
+        })
       });
 
-      if (response.error) throw response.error;
+      if (!response.ok) throw response.statusText;
 
-      const result = response.data;
+      const result = await response.json();
       const addedCount = result.properties_added || 0;
       const submittedCount = selectedIds.size;
       
