@@ -46,7 +46,7 @@ def infer_status(price, status):
   return status or ("for_sale" if price > 500000 else "for_rent")
 
 async def upload_properties(properties, user_id):
-  neighbourhoods = supabase.table("neighbourhoods").select("id, name").execute().get("data", [])
+  neighbourhoods = supabase.table("neighbourhoods").select("id, name").execute().data
   neighbourhood_map = {n["name"].lower(): n["id"] for n in neighbourhoods}
 
   formatted_properties = []
