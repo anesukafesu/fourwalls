@@ -38,7 +38,7 @@ Guidelines:
 
 client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
-async def extract_properties_from_posts(posts: list) -> list[dict]:
+async def parse_with_gemini(posts: list) -> list[dict]:
   combined_message = ""
   for post in posts:
     if not post.get("post_text"):
