@@ -35,7 +35,7 @@ async def parse(request: Request, authorization: str = Header(...)):
   if not posts:
     raise HTTPException(status_code=404, detail="No posts found for the given IDs")
 
-  properties = parse_with_gemini(posts)
+  properties = await parse_with_gemini(posts)
 
   try:
     properties_response = await upload_properties(properties, user_id)
