@@ -52,7 +52,7 @@ def load_embeddings():
   property_fields = "id,bedrooms,bathrooms,price,status,neighbourhood,interior_size_sqm"
   properties = supabase.table("properties").select(property_fields).execute().data
 
-  property_image_fields = "property_id,aspect,embedding"
+  property_image_fields = "property_id,aspect,embeddings"
   images = supabase.table("property_images").select(property_image_fields).execute().data
 
   neighbourhood_fields = "id,embedding"
