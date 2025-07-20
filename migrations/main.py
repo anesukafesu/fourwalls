@@ -4,6 +4,10 @@ from routes.migrate import migrate_facebook_posts
 
 app = FastAPI()
 
+@app.get("/")
+def read_root():
+    return {"message": "Running"}
+
 @app.post("/parse")
 async def parse_endpoint(request):
   return await parse(request)
