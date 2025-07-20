@@ -59,7 +59,7 @@ def load_embeddings():
   neighbourhoods = supabase.table("neighbourhoods").select(neighbourhood_fields).execute().data
 
   neighbhourhoods_map = {
-    n["id"]: np.array(n["embedding"], dtype=np.float32) for n in neighbourhoods
+    n["id"]: np.array(n["embeddings"], dtype=np.float32) for n in neighbourhoods
   }
 
   grouped = defaultdict(lambda: defaultdict(list))
