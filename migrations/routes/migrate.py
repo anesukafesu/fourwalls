@@ -38,6 +38,7 @@ def migrate_facebook_posts(payload: Dict[str, str], authorization: str = Header(
 
   access_token = token_data["access_token"]
   user_response = supabase.auth.get_user(authorization)
+  print(f"User response: {user_response}")
   user = user_response.user if hasattr(user_response, 'user') else None
 
   if not user:
