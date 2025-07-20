@@ -37,8 +37,6 @@ async def parse(request: Request, authorization: str = Header(...)):
 
   properties = await parse_with_gemini(posts)
 
-  print("Parsed properties:", properties)  # Debugging output
-
   try:
     properties_response = await upload_properties(properties, user_id)
   except Exception as e:

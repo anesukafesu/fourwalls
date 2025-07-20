@@ -67,6 +67,8 @@ async def upload_properties(properties, user_id):
       "images": [],
       "created_at": datetime.utcnow().isoformat(),
     })
+  
+  print("Formatted properties for upload:", formatted_properties)  # Debugging output
 
   insert_resp = supabase.table("properties").insert(formatted_properties).execute()
   inserted = insert_resp.get("data", [])
