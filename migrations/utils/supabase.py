@@ -67,13 +67,15 @@ async def upload_properties(properties, user_id):
       "images": [],
       "created_at": datetime.utcnow().isoformat(),
     })
-  
-  print("Formatted properties for upload:", formatted_properties)  # Debugging output
 
-  insert_resp = supabase.table("properties").insert(formatted_properties).execute()
-  inserted = insert_resp.get("data", [])
-  if not inserted:
-    return {"error": "Failed to insert properties", "details": insert_resp.get("error")}
+  try:
+    insert_resp = supabase.table("properties").insert(formatted_properties).execute()
+    inserted = insert_resp.data
+    if not inserted:
+      return {"error": "Failed to insert properties", "details": insert_resp.message}
+  except Exception as e:
+    return {"error": "An exception occurred while inserting properties", "details": str(e)}
+
 
   for prop in inserted:
     image_urls = []
