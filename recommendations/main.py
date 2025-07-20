@@ -99,6 +99,9 @@ def load_embeddings():
 def startup_event():
   load_embeddings()
 
+@app.get("/")
+def root():
+  return {"message": "API is live!"}
 
 @app.get("/recommendations/{property_id}")
 def get_similar(property_id: str):
