@@ -36,7 +36,7 @@ def migrate_facebook_posts(payload: Dict[str, str], authorization: str = Header(
   if "error" in token_data:
     raise HTTPException(status_code=400, detail=token_data["error"])
   
-  print("Authorization": authorization)
+  print(f"Authorization: {authorization}")
 
   access_token = token_data["access_token"]
   user_response = supabase.auth.get_user(authorization)
