@@ -3,9 +3,11 @@ from typing import Dict
 from datetime import datetime, timedelta
 import time
 import requests
+import os
+
 from utils.supabase import supabase
 from utils.facebook import classify_as_housing, extract_image_urls
-import os
+
 
 def migrate_facebook_posts(payload: Dict[str, str], authorization: str = Header(...)):
     code = payload.get("code")
@@ -80,15 +82,24 @@ def migrate_facebook_posts(payload: Dict[str, str], authorization: str = Header(
         for post in housing_posts
     ]
 
+    inserted_count = 0
+    error_details = None
+
     if listings_to_insert:
-        insert_resp = supabase.table("listings_buffer").insert(listings_to_insert).execute()
-        if insert_resp.error:
-            raise HTTPException(status_code=500, detail=str(insert_resp.error))
+        try:
+            response = supabase.table("listings_buffer").insert(listings_to_insert).execute()
+            if response.get("error"):
+                error_details = response["error"]
+            else:
+                inserted_count = len(response.get("data", []))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Insert failed: {str(e)}")
 
     return {
         "success": True,
         "message": f"Processed {len(all_posts)} posts, found {len(housing_posts)} housing-related posts",
         "total_posts": len(all_posts),
         "housing_posts": len(housing_posts),
-        "posts_saved": len(listings_to_insert),
+        "posts_saved": inserted_count,
+        "insert_error": error_details,
     }
