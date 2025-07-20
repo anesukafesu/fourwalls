@@ -56,3 +56,6 @@ class SimilarityMatrix:
       matrix[id_a] = [(id_b, score) for score, id_b in top_similar]
 
     return matrix
+  
+  def get_similar_properties(self, property_id: str) -> List[Tuple[str, float]]:
+    return self.similarity_index.get(property_id, [])
