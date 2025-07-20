@@ -9,7 +9,6 @@ async def parse(request: Request, authorization: str = Header(...)):
   if not post_ids or not isinstance(post_ids, list):
     raise HTTPException(status_code=400, detail="post_ids array is required")
 
- # Extract Bearer token
   if not authorization.startswith("Bearer "):
     raise HTTPException(status_code=401, detail="Invalid authorization header format")
   token = authorization.split("Bearer ")[-1].strip()
@@ -21,18 +20,29 @@ async def parse(request: Request, authorization: str = Header(...)):
 
   user_id = user.id
 
-  posts_response = supabase.table("listings_buffer").select("*").in_("id", post_ids).eq("user_id", user_id).execute()
-  if posts_response.get("error"):
-    raise HTTPException(status_code=500, detail=posts_response["error"])
+  try:
+    response = (
+      supabase.table("listings_buffer")
+      .select("*")
+      .in_("id", post_ids)
+      .eq("user_id", user_id)
+      .execute()
+    )
+    posts = response.get("data", [])
+  except Exception as e:
+    raise HTTPException(status_code=500, detail=f"Failed to fetch posts: {str(e)}")
 
-  posts = posts_response.get("data", [])
   if not posts:
     raise HTTPException(status_code=404, detail="No posts found for the given IDs")
 
   properties = parse_with_gemini(posts, user_id)
 
-  properties_response = await upload_properties(properties, user_id)
+  try:
+    properties_response = await upload_properties(properties, user_id)
+  except Exception as e:
+    raise HTTPException(status_code=500, detail=f"Failed to upload properties: {str(e)}")
+
   if "error" in properties_response:
     raise HTTPException(status_code=500, detail=properties_response["error"])
-  return {"properties": properties_response}
 
+  return {"properties": properties_response}
