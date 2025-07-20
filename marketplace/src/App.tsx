@@ -79,8 +79,8 @@ function App() {
                   <Route index element={<Index />} />
                   <Route path="auth" element={<Auth />} />
                   <Route path="properties" element={<Properties />} />
+                  <Route path="properties/create" element={<PropertyForm />} />
                   <Route path="properties/:id" element={<PropertyDetails />} />
-                  <Route path="add-property" element={<PropertyForm />} />
                   <Route path="edit-property/:id" element={<PropertyForm />} />
                   <Route path="my-properties" element={<MyProperties />} />
                   <Route path="profile/:userId" element={<UserProfile />} />
