@@ -35,16 +35,19 @@ def migrate_facebook_posts(payload: Dict[str, str], authorization: str = Header(
 
   if "error" in token_data:
     raise HTTPException(status_code=400, detail=token_data["error"])
-  
-  print(f"Authorization: {authorization}")
 
-  access_token = token_data["access_token"]
-  user_response = supabase.auth.get_user(authorization)
+  # Extract token from Authorization header
+  if not authorization.startswith("Bearer "):
+    raise HTTPException(status_code=401, detail="Invalid authorization format")
+  token = authorization.replace("Bearer ", "").strip()
+
+  user_response = supabase.auth.get_user(token)
   user = user_response.user if hasattr(user_response, 'user') else None
 
   if not user:
     raise HTTPException(status_code=401, detail="Unauthorized")
 
+  access_token = token_data["access_token"]
   since_timestamp = int((datetime.utcnow() - timedelta(days=365)).timestamp())
   all_posts = []
   next_url = (
@@ -62,37 +65,29 @@ def migrate_facebook_posts(payload: Dict[str, str], authorization: str = Header(
     next_url = posts_data.get("paging", {}).get("next")
     time.sleep(0.1)
 
-    housing_posts = [p for p in all_posts if classify_as_housing(p.get("message", ""))]
+  housing_posts = [p for p in all_posts if classify_as_housing(p.get("message", ""))]
 
-    listings_to_insert = [
-      {
-        "user_id": user.id,
-        "post_id": post["id"],
-        "post_text": post.get("message"),
-        "image_urls": extract_image_urls(post),
-        "source_url": f"https://facebook.com/{post['id']}",
-        "extracted_at": datetime.utcnow().isoformat(),
-      }
-      for post in housing_posts
-    ]
+  listings_to_insert = [
+    {
+      "user_id": user.id,
+      "post_id": post["id"],
+      "post_text": post.get("message"),
+      "image_urls": extract_image_urls(post),
+      "source_url": f"https://facebook.com/{post['id']}",
+      "extracted_at": datetime.utcnow().isoformat(),
+    }
+    for post in housing_posts
+  ]
 
-    if listings_to_insert:
-      insert_resp = supabase.table("listings_buffer").insert(listings_to_insert).execute()
-      if insert_resp.get("error"):
-        raise HTTPException(status_code=500, detail=insert_resp["error"])
+  if listings_to_insert:
+    insert_resp = supabase.table("listings_buffer").insert(listings_to_insert).execute()
+    if insert_resp.get("error"):
+      raise HTTPException(status_code=500, detail=insert_resp["error"])
 
-        return {
-          "success": True,
-          "message": f"Processed {len(all_posts)} posts, found {len(housing_posts)} housing-related posts",
-          "total_posts": len(all_posts),
-          "housing_posts": len(housing_posts),
-          "posts_saved": len(listings_to_insert),
-        }
-    else:
-      return {
-        "success": True,
-        "message": f"Processed {len(all_posts)} posts, but found no housing-related content",
-        "total_posts": len(all_posts),
-        "housing_posts": 0,
-        "posts_saved": 0,
-      }
+  return {
+    "success": True,
+    "message": f"Processed {len(all_posts)} posts, found {len(housing_posts)} housing-related posts",
+    "total_posts": len(all_posts),
+    "housing_posts": len(housing_posts),
+    "posts_saved": len(listings_to_insert),
+  }
