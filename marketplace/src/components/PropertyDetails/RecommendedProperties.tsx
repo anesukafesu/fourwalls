@@ -1,5 +1,3 @@
-
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,8 +15,10 @@ const RecommendedProperties = ({ propertyId }: RecommendedPropertiesProps) => {
         const response = await fetch(`https://akafesu-fourwalls-recommendations-api.hf.space/recommendations/${propertyId}`);
         
         if (!response.ok) throw new Error('Failed to fetch recommendations');
-        
+
         const recommendedIds = await response.json();
+
+        console.log('Recommended IDs:', recommendedIds);
         
         // Fetch property details for recommended IDs
         if (recommendedIds && recommendedIds.length > 0) {
