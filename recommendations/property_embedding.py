@@ -24,8 +24,6 @@ class PropertyEmbedding:
     metadata = property_data.get('metadata', {})
     images = property_data.get('images', {})
 
-    
-    
     metadata_emb = cls.embed_metadata(metadata, metadata_weights)
     interior_emb = cls.average_embedding(images.get('interior', []))
     exterior_emb = cls.average_embedding(images.get('exterior', []))
@@ -51,7 +49,7 @@ class PropertyEmbedding:
 
   @staticmethod
   def embed_metadata(metadata: dict, weights: Dict[str, float]) -> np.ndarray:
-    vector = [float(metadata.get(field, 0.0)) for field in weights]
+    vector = [float(metadata.get(field) or 0.0) for field in weights]
     return np.array(vector, dtype=np.float32)
 
   @staticmethod
