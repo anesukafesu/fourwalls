@@ -1,4 +1,5 @@
 from google import genai
+from google.genai import types
 import json
 import os
 
@@ -49,9 +50,10 @@ async def parse_with_gemini(posts: list) -> list[dict]:
 
   response = client.models.generate_content(
     model="gemini-2.5-flash",
-    system_instruction=SYSTEM_PROMPT,
+    config=types.GenerateContentConfig(
+      system_instruction=SYSTEM_PROMPT
+    ),
     contents=combined_message,
-    temperature=0,
   )
 
   generated = response.text if hasattr(response, 'text') else str(response)
