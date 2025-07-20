@@ -183,6 +183,11 @@ const FacebookImports = () => {
     try {
       if (!services) return;
       const response = await fetch(`${services['MIGRATIONS']}/parse`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        method: 'POST',
         body: JSON.stringify({ 
           post_ids: Array.from(selectedIds),
           user_id: user?.id 

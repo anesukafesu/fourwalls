@@ -9,12 +9,15 @@ async def parse(request: Request, authorization: str = Header(...)):
   if not post_ids or not isinstance(post_ids, list):
     raise HTTPException(status_code=400, detail="post_ids array is required")
 
-  token = authorization.replace("Bearer ", "")
-  user_response = supabase.auth.get_user(token)
-  user = user_response.user if hasattr(user_response, 'user') else None
+ # Extract Bearer token
+  if not authorization.startswith("Bearer "):
+    raise HTTPException(status_code=401, detail="Invalid authorization header format")
+  token = authorization.split("Bearer ")[-1].strip()
 
+  user_response = supabase.auth.get_user(token)
+  user = getattr(user_response, "user", None)
   if not user:
-    raise HTTPException(status_code=401, detail="Invalid or expired session")
+    raise HTTPException(status_code=401, detail="Unauthorized")
 
   user_id = user.id
 
