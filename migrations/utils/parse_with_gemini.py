@@ -1,6 +1,6 @@
 import os
 import json
-from google import genai
+import google.generativeai as genai
 
 SYSTEM_PROMPT = """
 You are a real estate data extraction expert. Your task is to analyze social media posts about real estate properties and extract structured property information.
