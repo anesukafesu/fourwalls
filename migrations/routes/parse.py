@@ -28,6 +28,7 @@ async def parse(request: Request, authorization: str = Header(...)):
       .eq("user_id", user_id)
       .execute()
     )
+    print("Response from Supabase:", response)  # Debugging output
     posts = response.get("data", [])
   except Exception as e:
     raise HTTPException(status_code=500, detail=f"Failed to fetch posts: {str(e)}")

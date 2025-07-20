@@ -194,7 +194,7 @@ const FacebookImports = () => {
         })
       });
 
-      if (!response.ok) throw response.statusText;
+      if (!response.ok) throw await response.text();
 
       const result = await response.json();
       const addedCount = result.properties_added || 0;
