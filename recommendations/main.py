@@ -107,8 +107,7 @@ def root():
 def get_similar(property_id: str):
   try:
     recommendations = engine.get_recommendations(property_id)
-    print(f"Recommendations for {property_id}: {recommendations}")
-    return {"recommended_ids": [rec[1] for rec in recommendations]}
+    return {"recommended_ids": [rec[0] for rec in recommendations]}
   except KeyError:
     raise HTTPException(404, detail="Property not found")
 
@@ -127,7 +126,7 @@ def get_from_history(req: ViewHistoryRequest):
   for score, rid in all_recs:
     score_map[rid] += score
 
-  sorted_recs = sorted(score_map.items(), key=lambda x: x[1], reverse=True)[:10]
+  sorted_recs = sorted(score_map.items(), key=lambda x: x[0], reverse=True)[:10]
   return {"recommended_ids": [r[0] for r in sorted_recs]}
 
 @app.get("/on-properties-update/")
