@@ -35,6 +35,8 @@ class SimilarityMatrix:
 
       total_score += weighted_sim
 
+      print(total_score, type(total_score))
+
     return total_score
 
   def _compute_similarity_matrix(self) -> Dict[str, List[Tuple[str, float]]]:
