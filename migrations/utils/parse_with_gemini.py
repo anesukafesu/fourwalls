@@ -57,8 +57,6 @@ async def parse_with_gemini(posts: list) -> list[dict]:
   )
 
   generated = response.text if hasattr(response, 'text') else str(response)
-
-  print("Generated response:", generated)  # Debugging output
   try:
     json_output = generated.replace("```json", "").replace("```", "").strip()
     return json.loads(json_output)
