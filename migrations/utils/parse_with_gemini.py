@@ -11,7 +11,6 @@ Return the result strictly as a valid JSON array of objects matching this schema
 - description: string (optional)
 - neighbourhood: string (required)
 - city: string (required)
-- province: string (required)
 - price: number (required, in RWF)
 - bedrooms: integer (optional)
 - bathrooms: number (optional)
@@ -21,7 +20,6 @@ Return the result strictly as a valid JSON array of objects matching this schema
 - features: array of strings (optional)
 - year_built: number (optional)
 - lot_size_sqm: number (optional)
-- images: array of strings (URLs to property images)
 
 Guidelines:
 1. Only include properties with title, neighbourhood, city, province, and price.
