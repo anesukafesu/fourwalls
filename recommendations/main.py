@@ -107,6 +107,7 @@ def root():
 def get_similar(property_id: str):
   try:
     recommendations = engine.get_recommendations(property_id)
+    print(f"Recommendations for {property_id}: {recommendations}")
     return {"recommended_ids": [rec[1] for rec in recommendations]}
   except KeyError:
     raise HTTPException(404, detail="Property not found")
