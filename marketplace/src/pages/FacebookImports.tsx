@@ -51,6 +51,7 @@ const FacebookImports = () => {
   const handleFacebookCallback = async (code: string) => {
     setImporting(true);
     try {
+      if (!services) return;
       const response = await fetch(`${services['MIGRATIONS']}/migrate/facebook`, {
         headers: {
           'Content-Type': 'application/json',
