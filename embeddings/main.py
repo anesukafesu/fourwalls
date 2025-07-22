@@ -72,7 +72,7 @@ async def embed_image(request: Request):
             return JSONResponse(status_code=400, content={"error": "Missing bucket_id or file_path."})
 
         # Only process if the image is a property image
-        if not file_path.startswith("property_images/"):
+        if not bucket_id == "property_images":
             print(f"Skipping non-property image: {file_path}")
             return JSONResponse({"status": "skipped", "reason": "not a property image"})
 
