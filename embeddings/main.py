@@ -94,6 +94,7 @@ async def embed_image(request: Request):
 
         # Get public URL for the image
         public_url_resp = supabase.storage.from_(bucket_id).get_public_url(file_path)
+        print(public_url_resp)
         image_url = public_url_resp.get('publicUrl') if public_url_resp else None
 
         # Insert into property_images table
