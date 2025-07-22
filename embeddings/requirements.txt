@@ -3,7 +3,7 @@ uvicorn[standard]
 pillow
 tensorflow
 numpy
-supabase-py 
+supabase
 
 
 
