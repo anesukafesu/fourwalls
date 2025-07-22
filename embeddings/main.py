@@ -90,9 +90,7 @@ async def embed_image(request: Request):
         confidence = float(prediction.numpy()[0][0])
 
         # Extract property_id from file_path (after 'property_image/' and before the next slash)
-        property_id = file_path.split("/", 2)[1] if file_path.count("/") >= 2 else file_path
-
-        print("Property ID:", property_id)
+        property_id = file_path.split("/")[0]
 
         # Get public URL for the image
         public_url = supabase.storage.from_(bucket_id).get_public_url(file_path)
