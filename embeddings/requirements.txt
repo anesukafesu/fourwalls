@@ -3,7 +3,7 @@ uvicorn[standard]
 pillow
 tensorflow
 numpy
-python-multipart  # Needed to handle file uploads
+supabase-py 
 
 
 
