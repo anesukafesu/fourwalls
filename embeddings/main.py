@@ -72,6 +72,11 @@ async def embed_image(request: Request):
         if not bucket_id or not file_path or not record_id:
             return JSONResponse(status_code=400, content={"error": "Missing bucket_id, name, or id in record"})
 
+        # Only process if the image is a property image
+        if not file_path.startswith("property_image/"):
+            print(f"Skipping non-property image: {file_path}")
+            return JSONResponse({"status": "skipped", "reason": "not a property image"})
+
         # Download image from Supabase Storage
         image_bytes = download_image_from_supabase(bucket_id, file_path)
         print(f"Downloaded image: {file_path} ({len(image_bytes)} bytes)")
@@ -85,8 +90,8 @@ async def embed_image(request: Request):
         aspect = "exterior" if prediction.numpy()[0][0] > 0.5 else "interior"
         confidence = float(prediction.numpy()[0][0])
 
-        # Extract property_id from file_path (before the first slash)
-        property_id = file_path.split("/", 1)[0] if "/" in file_path else file_path
+        # Extract property_id from file_path (after 'property_image/' and before the next slash)
+        property_id = file_path.split("/", 2)[1] if file_path.count("/") >= 2 else file_path
 
         # Get public URL for the image
         public_url_resp = supabase.storage.from_(bucket_id).get_public_url(file_path)
