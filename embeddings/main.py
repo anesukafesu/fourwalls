@@ -45,17 +45,19 @@ def download_image_from_supabase(bucket_id, file_path):
 
 # Helper to insert record into property_images table using supabase-py
 def insert_property_image(property_id, aspect, embedding, confidence, image_url):
-    data = {
-        "property_id": property_id,
-        "aspect": aspect,
-        "embedding": embedding,
-        "confidence": confidence,
-        "url": image_url
-    }
-    resp = supabase.table("property_images").insert(data).execute()
-    if resp.status_code not in (200, 201):
-        raise Exception(f"Failed to insert property image: {resp.status_code} {resp.data}")
-    return resp.data
+    try:
+      data = {
+          "property_id": property_id,
+          "aspect": aspect,
+          "embedding": embedding,
+          "confidence": confidence,
+          "url": image_url
+      }
+      resp = supabase.table("property_images").insert(data).execute()
+      return resp.data
+    except Exception as e:
+        raise Exception(f"Failed to insert property image: {str(e)}")
+    
 
 @app.post("/embed")
 async def embed_image(request: Request):
