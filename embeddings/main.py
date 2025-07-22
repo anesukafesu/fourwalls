@@ -1,14 +1,12 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-import tensorflow as tf
+import io
 import numpy as np
 from PIL import Image
-import io
+import tensorflow as tf
 import uvicorn
-import os
-
-SUPABASE_URL = os.getenv('SUPABASE_URL')
-SUPABASE_ANON_KEY = os.getenv('SUPABASE_ANON_KEY')
+from supabase_client import supabase
+from models import create_models
 
 # Constants
 IMG_SIZE = 224
@@ -21,11 +19,11 @@ base_model = tf.keras.applications.MobileNetV2(
 )
 base_model.trainable = False
 
-# The top model includes GlobalAveragePooling2D as the first layer
-top_model = tf.keras.models.load_model("model/top_classifier_head.h5")
+# Create the base and top models
+base_model, top_model = create_models(IMG_SIZE)
+
 
 app = FastAPI()
-
 
 def preprocess_image(image_bytes):
   """Preprocess the uploaded image for MobileNetV2"""
@@ -34,39 +32,73 @@ def preprocess_image(image_bytes):
   array = np.array(image).astype("float32") / 255.0
   return np.expand_dims(array, axis=0)
 
-
 @app.get("/")
 def read_root():
   return {"status": "ok"}
 
+# Helper to download image from Supabase Storage using supabase-py
+def download_image_from_supabase(bucket_id, file_path):
+    resp = supabase.storage.from_(bucket_id).download(file_path)
+    if not resp:
+        raise Exception(f"Failed to download image from {bucket_id}/{file_path}")
+    return resp
+
+# Helper to insert record into property_images table using supabase-py
+def insert_property_image(record_id, property_id, aspect, embedding, confidence, image_url):
+    data = {
+        "property_id": property_id,
+        "aspect": aspect,
+        "embedding": embedding,
+        "confidence": confidence,
+        "url": image_url
+    }
+    resp = supabase.table("property_images").insert(data).execute()
+    if resp.status_code not in (200, 201):
+        raise Exception(f"Failed to insert property image: {resp.status_code} {resp.data}")
+    return resp.data
 
 @app.post("/embed")
-async def embed_image(file: UploadFile = File(...)):
-  try:
-    # Print file info for debugging webhook integration
-    print(f"Received file: filename={file.filename}, content_type={file.content_type}")
-    contents = await file.read()
-    print(f"File size: {len(contents)} bytes")
-    # Optionally, print a short preview of the bytes (not the whole file)
-    print(f"File bytes preview: {contents[:32]}")
+async def embed_image(request: Request):
+    try:
+        data = await request.json()
+        print("Received webhook data:", data)
+        record = data.get("record")
+        if not record:
+            return JSONResponse(status_code=400, content={"error": "Missing record in webhook data"})
 
-    # (You can comment out the rest if you only want to print for now)
-    # img_tensor = preprocess_image(contents)
-    # feature_map = base_model(img_tensor, training=False)
-    # prediction = top_model(feature_map, training=False)
-    # pooled_embedding = tf.keras.layers.GlobalAveragePooling2D()(feature_map)
-    # embedding_vector = pooled_embedding.numpy()[0].tolist()
-    # label = "exterior" if prediction.numpy()[0][0] > 0.5 else "interior"
-    # confidence = float(prediction.numpy()[0][0])
+        bucket_id = record.get("bucket_id")
+        file_path = record.get("name")
+        record_id = record.get("id")
+        if not bucket_id or not file_path or not record_id:
+            return JSONResponse(status_code=400, content={"error": "Missing bucket_id, name, or id in record"})
 
-    return JSONResponse({
-      "status": "received",
-      "filename": file.filename,
-      "content_type": file.content_type,
-      "size": len(contents)
-    })
-  except Exception as e:
-    return JSONResponse(status_code=500, content={"error": str(e)})
+        # Download image from Supabase Storage
+        image_bytes = download_image_from_supabase(bucket_id, file_path)
+        print(f"Downloaded image: {file_path} ({len(image_bytes)} bytes)")
+
+        # Preprocess and embed
+        img_tensor = preprocess_image(image_bytes)
+        feature_map = base_model(img_tensor, training=False)
+        prediction = top_model(feature_map, training=False)
+        pooled_embedding = tf.keras.layers.GlobalAveragePooling2D()(feature_map)
+        embedding_vector = pooled_embedding.numpy()[0].tolist()
+        aspect = "exterior" if prediction.numpy()[0][0] > 0.5 else "interior"
+        confidence = float(prediction.numpy()[0][0])
+
+        # Extract property_id from file_path (before the first slash)
+        property_id = file_path.split("/", 1)[0] if "/" in file_path else file_path
+
+        # Get public URL for the image
+        public_url_resp = supabase.storage.from_(bucket_id).get_public_url(file_path)
+        image_url = public_url_resp.get('publicUrl') if public_url_resp else None
+
+        # Insert into property_images table
+        insert_property_image(record_id, property_id, aspect, embedding_vector, confidence, image_url)
+
+        return JSONResponse({"status": "ok"})
+    except Exception as e:
+        print("Error in /embed:", str(e))
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 
 @app.get("/health")
