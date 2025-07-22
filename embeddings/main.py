@@ -5,6 +5,10 @@ import numpy as np
 from PIL import Image
 import io
 import uvicorn
+import os
+
+SUPABASE_URL = os.getenv('SUPABASE_URL')
+SUPABASE_ANON_KEY = os.getenv('SUPABASE_ANON_KEY')
 
 # Constants
 IMG_SIZE = 224
@@ -39,29 +43,28 @@ def read_root():
 @app.post("/embed")
 async def embed_image(file: UploadFile = File(...)):
   try:
-    # Load and preprocess the image
+    # Print file info for debugging webhook integration
+    print(f"Received file: filename={file.filename}, content_type={file.content_type}")
     contents = await file.read()
-    img_tensor = preprocess_image(contents)
+    print(f"File size: {len(contents)} bytes")
+    # Optionally, print a short preview of the bytes (not the whole file)
+    print(f"File bytes preview: {contents[:32]}")
 
-    # Extract visual features
-    # shape: (1, 7, 7, 1280)
-    feature_map = base_model(img_tensor, training=False)
-
-    # Generate classification and embedding
-    # top_model includes GlobalAveragePooling2D
-    prediction = top_model(feature_map, training=False)
-    pooled_embedding = tf.keras.layers.GlobalAveragePooling2D()(feature_map)
-    embedding_vector = pooled_embedding.numpy()[0].tolist()
-
-    label = "exterior" if prediction.numpy()[0][0] > 0.5 else "interior"
-    confidence = float(prediction.numpy()[0][0])
+    # (You can comment out the rest if you only want to print for now)
+    # img_tensor = preprocess_image(contents)
+    # feature_map = base_model(img_tensor, training=False)
+    # prediction = top_model(feature_map, training=False)
+    # pooled_embedding = tf.keras.layers.GlobalAveragePooling2D()(feature_map)
+    # embedding_vector = pooled_embedding.numpy()[0].tolist()
+    # label = "exterior" if prediction.numpy()[0][0] > 0.5 else "interior"
+    # confidence = float(prediction.numpy()[0][0])
 
     return JSONResponse({
-      "embedding": embedding_vector,
-      "predicted_label": label,
-      "confidence": confidence
+      "status": "received",
+      "filename": file.filename,
+      "content_type": file.content_type,
+      "size": len(contents)
     })
-
   except Exception as e:
     return JSONResponse(status_code=500, content={"error": str(e)})
 
