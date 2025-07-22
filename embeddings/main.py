@@ -97,6 +97,8 @@ async def embed_image(request: Request):
         # Get public URL for the image
         public_url = supabase.storage.from_(bucket_id).get_public_url(file_path)
 
+        confidence = 1 - confidence if aspect == "interior" else confidence
+
         # Insert into property_images table
         insert_property_image(property_id, aspect, embedding_vector, confidence, public_url)
 
