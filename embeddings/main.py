@@ -44,7 +44,7 @@ def download_image_from_supabase(bucket_id, file_path):
     return resp
 
 # Helper to insert record into property_images table using supabase-py
-def insert_property_image(record_id, property_id, aspect, embedding, confidence, image_url):
+def insert_property_image(property_id, aspect, embedding, confidence, image_url):
     data = {
         "property_id": property_id,
         "aspect": aspect,
@@ -68,12 +68,11 @@ async def embed_image(request: Request):
 
         bucket_id = record.get("bucket_id")
         file_path = record.get("name")
-        record_id = record.get("id")
-        if not bucket_id or not file_path or not record_id:
-            return JSONResponse(status_code=400, content={"error": "Missing bucket_id, name, or id in record"})
+        if not bucket_id or not file_path:
+            return JSONResponse(status_code=400, content={"error": "Missing bucket_id or file_path."})
 
         # Only process if the image is a property image
-        if not file_path.startswith("property_image/"):
+        if not file_path.startswith("property_images/"):
             print(f"Skipping non-property image: {file_path}")
             return JSONResponse({"status": "skipped", "reason": "not a property image"})
 
@@ -98,7 +97,7 @@ async def embed_image(request: Request):
         image_url = public_url_resp.get('publicUrl') if public_url_resp else None
 
         # Insert into property_images table
-        insert_property_image(record_id, property_id, aspect, embedding_vector, confidence, image_url)
+        insert_property_image(property_id, aspect, embedding_vector, confidence, image_url)
 
         return JSONResponse({"status": "ok"})
     except Exception as e:
