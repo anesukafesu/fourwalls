@@ -59,7 +59,6 @@ def insert_property_image(property_id, aspect, embedding, confidence, image_url)
 
 @app.post("/embed")
 async def embed_image(request: Request):
-    print("running")
     try:
         data = await request.json()
         print("Received webhook data:", data)
@@ -73,7 +72,7 @@ async def embed_image(request: Request):
             return JSONResponse(status_code=400, content={"error": "Missing bucket_id or file_path."})
 
         # Only process if the image is a property image
-        if not bucket_id == "property_images":
+        if not bucket_id == "property-images":
             print(f"Skipping non-property image: {file_path}")
             return JSONResponse({"status": "skipped", "reason": "not a property image"})
 
