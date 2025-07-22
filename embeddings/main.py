@@ -93,12 +93,10 @@ async def embed_image(request: Request):
         property_id = file_path.split("/", 2)[1] if file_path.count("/") >= 2 else file_path
 
         # Get public URL for the image
-        public_url_resp = supabase.storage.from_(bucket_id).get_public_url(file_path)
-        print(public_url_resp)
-        image_url = public_url_resp.get('publicUrl') if public_url_resp else None
+        public_url = supabase.storage.from_(bucket_id).get_public_url(file_path)
 
         # Insert into property_images table
-        insert_property_image(property_id, aspect, embedding_vector, confidence, image_url)
+        insert_property_image(property_id, aspect, embedding_vector, confidence, public_url)
 
         return JSONResponse({"status": "ok"})
     except Exception as e:
