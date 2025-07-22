@@ -59,6 +59,7 @@ def insert_property_image(property_id, aspect, embedding, confidence, image_url)
 
 @app.post("/embed")
 async def embed_image(request: Request):
+    print("running")
     try:
         data = await request.json()
         print("Received webhook data:", data)
