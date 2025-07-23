@@ -17,12 +17,12 @@ const ChatContainer = () => {
     if (prefillMessage && currentSessionId && sessionType === "ai") {
       // Send the prefilled message immediately for AI chat
       const timer = setTimeout(() => {
-        handleSendMessage(decodeURIComponent(prefillMessage));
+        // handleSendMessage(decodeURIComponent(prefillMessage));
       }, 500); // Small delay to ensure chat is ready
       
       return () => clearTimeout(timer);
     }
-  }, [prefillMessage, currentSessionId, sessionType, handleSendMessage]);
+  }, [handleSendMessage]);
 
   return (
     <div className="w-full min-h-full bg-gray-200 flex flex-col">

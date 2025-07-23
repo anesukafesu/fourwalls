@@ -70,13 +70,15 @@ const ImageUploadSection = ({
                   {formData.images.map((image, index) => (
                     <ImageItem
                       key={`existing-${index}`}
-                      src={image}
-                      alt={`Property image ${index + 1}`}
-                      onRemove={() => handleRemoveExistingImage(index, image)}
+                      imageUrl={image}
+                      index={index}
+                      total={formData.images.length}
+                      isFeatured={index === 0}
                       onView={() => setSelectedImage(image)}
-                      onMoveUp={index > 0 ? () => onMoveImage(index, index - 1, true) : undefined}
-                      onMoveDown={index < formData.images.length - 1 ? () => onMoveImage(index, index + 1, true) : undefined}
-                      isPrimary={index === 0}
+                      onMoveLeft={index > 0 ? () => onMoveImage(index, index - 1, true) : () => {}}
+                      onMoveRight={index < formData.images.length - 1 ? () => onMoveImage(index, index + 1, true) : () => {}}
+                      onDelete={() => handleRemoveExistingImage(index, image)}
+                      propertyTitle="Property"
                     />
                   ))}
                 </div>
@@ -91,13 +93,15 @@ const ImageUploadSection = ({
                   {imageFiles.map((file, index) => (
                     <ImageItem
                       key={`new-${index}`}
-                      src={URL.createObjectURL(file)}
-                      alt={`New image ${index + 1}`}
-                      onRemove={() => onRemoveImage(index, false)}
+                      imageUrl={URL.createObjectURL(file)}
+                      index={index + formData.images.length}
+                      total={formData.images.length + imageFiles.length}
+                      isFeatured={formData.images.length === 0 && index === 0}
                       onView={() => setSelectedImage(URL.createObjectURL(file))}
-                      onMoveUp={index > 0 ? () => onMoveImage(index, index - 1, false) : undefined}
-                      onMoveDown={index < imageFiles.length - 1 ? () => onMoveImage(index, index + 1, false) : undefined}
-                      isPrimary={formData.images.length === 0 && index === 0}
+                      onMoveLeft={index > 0 ? () => onMoveImage(index, index - 1, false) : () => {}}
+                      onMoveRight={index < imageFiles.length - 1 ? () => onMoveImage(index, index + 1, false) : () => {}}
+                      onDelete={() => onRemoveImage(index, false)}
+                      propertyTitle="Property"
                     />
                   ))}
                 </div>
@@ -108,9 +112,10 @@ const ImageUploadSection = ({
 
         {selectedImage && (
           <ImageModal
-            src={selectedImage}
-            alt="Property image"
+            isOpen={!!selectedImage}
             onClose={() => setSelectedImage(null)}
+            imageUrl={selectedImage || ""}
+            imageTitle="Property image"
           />
         )}
       </CardContent>

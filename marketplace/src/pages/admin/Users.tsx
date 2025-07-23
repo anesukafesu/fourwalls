@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { Crown, Plus, Ban, UserCheck } from "lucide-react";
+import { Crown, Plus, Ban, UserCheck, Mail, Calendar, CreditCard } from "lucide-react";
 
 interface UserWithRole {
   id: string;
@@ -192,14 +192,15 @@ function Users() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-neutral-50 min-h-screen p-6">
       <div>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-2xl font-bold tracking-tight mb-2">User Management</h1>
+        <p className="text-gray-600">
           Manage user accounts and permissions
         </p>
       </div>
 
-      <Card>
+      <Card className="bg-white">
         <CardHeader>
           <CardTitle>Search Users</CardTitle>
         </CardHeader>
@@ -215,34 +216,47 @@ function Users() {
 
       <div className="grid gap-4">
         {filteredUsers?.map((user) => (
-          <Card key={user.id}>
+          <Card key={user.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <Avatar className="h-12 w-12">
+              <div className="flex items-start gap-6">
+                {/* User Avatar and Basic Info */}
+                <div className="flex items-center gap-4 flex-1">
+                  <Avatar className="h-16 w-16">
                     <AvatarImage src={user.avatar_url || ""} />
-                    <AvatarFallback>
+                    <AvatarFallback className="bg-primary/10 text-primary text-lg font-semibold">
                       {user.full_name?.charAt(0) ||
                         user.email?.charAt(0) ||
                         "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <h3 className="font-semibold">
-                      {user.full_name || "No name provided"}
-                    </h3>
-                    <p className="text-gray-600">{user.email || "No email"}</p>
-                    <div className="flex items-center gap-2 mt-1">
+                  <div className="space-y-2">
+                    <div>
+                      <h3 className="font-semibold text-lg">
+                        {user.full_name || "No name provided"}
+                      </h3>
+                      <div className="flex items-center gap-1 text-gray-600">
+                        <Mail className="h-4 w-4" />
+                        <span>{user.email || "No email"}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
                       <Badge
                         variant={
                           user.role === "admin" ? "default" : "secondary"
                         }
+                        className="flex items-center gap-1"
                       >
+                        {user.role === "admin" && <Crown className="h-3 w-3" />}
                         {user.role}
                       </Badge>
-                      <span className="text-sm text-gray-500">
-                        {user.credits} credits
-                      </span>
+                      <div className="flex items-center gap-1 text-sm text-gray-500">
+                        <CreditCard className="h-4 w-4" />
+                        <span>{user.credits} credits</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-sm text-gray-500">
+                        <Calendar className="h-4 w-4" />
+                        <span>Joined {new Date(user.created_at).toLocaleDateString()}</span>
+                      </div>
                       {user.is_blocked && (
                         <Badge variant="destructive">Blocked</Badge>
                       )}
@@ -250,7 +264,8 @@ function Users() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                {/* Actions */}
+                <div className="flex flex-col gap-3">
                   {/* Credits Management */}
                   <div className="flex items-center gap-2">
                     <Input
@@ -263,63 +278,70 @@ function Users() {
                           [user.id]: parseInt(e.target.value) || 0,
                         }))
                       }
-                      className="w-20"
+                      className="w-24"
                     />
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleGrantCredits(user.id)}
                       disabled={grantCreditsMutation.isPending}
+                      className="whitespace-nowrap"
                     >
-                      <Plus className="h-4 w-4" />
+                      <Plus className="h-4 w-4 mr-1" />
+                      Grant
                     </Button>
                   </div>
 
-                  {/* Block/Unblock User */}
-                  <Button
-                    size="sm"
-                    variant={user.is_blocked ? "default" : "destructive"}
-                    onClick={() =>
-                      toggleBlockMutation.mutate({
-                        userId: user.id,
-                        blockStatus: !user.is_blocked,
-                      })
-                    }
-                    disabled={toggleBlockMutation.isPending}
-                  >
-                    {user.is_blocked ? (
-                      <>
-                        <UserCheck className="h-4 w-4 mr-2" />
-                        Unblock
-                      </>
-                    ) : (
-                      <>
-                        <Ban className="h-4 w-4 mr-2" />
-                        Block
-                      </>
-                    )}
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {/* Block/Unblock User */}
+                    <Button
+                      size="sm"
+                      variant={user.is_blocked ? "default" : "destructive"}
+                      onClick={() =>
+                        toggleBlockMutation.mutate({
+                          userId: user.id,
+                          blockStatus: !user.is_blocked,
+                        })
+                      }
+                      disabled={toggleBlockMutation.isPending}
+                      className="whitespace-nowrap"
+                    >
+                      {user.is_blocked ? (
+                        <>
+                          <UserCheck className="h-4 w-4 mr-1" />
+                          Unblock
+                        </>
+                      ) : (
+                        <>
+                          <Ban className="h-4 w-4 mr-1" />
+                          Block
+                        </>
+                      )}
+                    </Button>
 
-                  {/* Role Management */}
-                  {user.role === "admin" ? (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => removeAdminMutation.mutate(user.id)}
-                      disabled={removeAdminMutation.isPending}
-                    >
-                      Remove Admin
-                    </Button>
-                  ) : (
-                    <Button
-                      size="sm"
-                      onClick={() => promoteUserMutation.mutate(user.id)}
-                      disabled={promoteUserMutation.isPending}
-                    >
-                      <Crown className="h-4 w-4 mr-2" />
-                      Make Admin
-                    </Button>
-                  )}
+                    {/* Role Management */}
+                    {user.role === "admin" ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => removeAdminMutation.mutate(user.id)}
+                        disabled={removeAdminMutation.isPending}
+                        className="whitespace-nowrap"
+                      >
+                        Remove Admin
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => promoteUserMutation.mutate(user.id)}
+                        disabled={promoteUserMutation.isPending}
+                        className="whitespace-nowrap"
+                      >
+                        <Crown className="h-4 w-4 mr-1" />
+                        Make Admin
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -328,7 +350,7 @@ function Users() {
       </div>
 
       {filteredUsers?.length === 0 && (
-        <Card>
+        <Card className="bg-white">
           <CardContent className="p-6 text-center text-gray-500">
             No users found matching your search.
           </CardContent>

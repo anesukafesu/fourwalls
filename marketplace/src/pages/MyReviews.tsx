@@ -5,7 +5,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star, Edit2, Trash2 } from 'lucide-react';
+import { Star, Edit2, Trash2, MoreVertical, Flag } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import EditReviewModal from '@/components/Reviews/EditReviewModal';
@@ -13,6 +20,7 @@ import { useScrollReset } from '@/hooks/useScrollReset';
 
 const MyReviews = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [editingReview, setEditingReview] = useState<any>(null);
   useScrollReset();
@@ -111,23 +119,30 @@ const MyReviews = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setEditingReview(review)}
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteReviewMutation.mutate(review.id)}
-                        disabled={deleteReviewMutation.isPending}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setEditingReview(review)}>
+                          <Edit2 className="h-4 w-4 mr-2" />
+                          Edit Review
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => deleteReviewMutation.mutate(review.id)}
+                          disabled={deleteReviewMutation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete Review
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate(`/report-review/${review.id}`)}>
+                          <Flag className="h-4 w-4 mr-2" />
+                          Report Review
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                   <p className="mt-3 text-gray-700">{review.message}</p>
                   {review.agent_response && (

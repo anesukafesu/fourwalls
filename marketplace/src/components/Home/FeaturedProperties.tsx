@@ -117,7 +117,7 @@ const FeaturedProperties = () => {
 
   return (
     <PropertiesSpotlight
-      title={user ? "Recommended For You" : "Most Popular Properties"}
+      title="Recommended for you"
       subtitle={
         user 
           ? "Properties recommended based on your viewing history."

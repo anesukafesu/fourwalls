@@ -63,7 +63,7 @@ const PropertyViewsTrendChart = () => {
   const chartConfig = {
     views: {
       label: "Views",
-      color: "hsl(var(--chart-1))",
+      color: "hsl(var(--chart-8))",
     },
   };
 

@@ -74,6 +74,14 @@ const Footer = () => {
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
                 <button 
+                  onClick={() => navigate('/blog')}
+                  className="hover:text-primary transition-colors text-left"
+                >
+                  Blog
+                </button>
+              </li>
+              <li>
+                <button 
                   onClick={() => navigate('/neighbourhoods')}
                   className="hover:text-primary transition-colors text-left"
                 >
@@ -147,15 +155,6 @@ const Footer = () => {
               </li>
             </ul>
 
-            <h4 className="font-heading font-bold mb-2 text-gray-300">Contact Info</h4>
-            <ul className="space-y-1 text-sm text-gray-400">
-              <li className="flex items-center">
-                <MapPin className="h-4 w-4 mr-2" />
-                KG 123 St, Kimisagara, Kigali
-              </li>
-              <li>Phone: +250 788 123 456</li>
-              <li>Email: info@fourwalls.rw</li>
-            </ul>
           </div>
         </div>
 

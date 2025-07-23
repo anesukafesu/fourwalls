@@ -126,7 +126,7 @@ const PropertyDetails = () => {
   });
 
   const handleEditProperty = () => {
-    navigate(`/properties/${property?.id}/edit`);
+    navigate(`/edit-property/${property?.id}`);
   };
 
   const handleSignInToContact = () => {

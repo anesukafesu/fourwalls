@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Block, UserX } from 'lucide-react';
+import { Shield, UserX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';

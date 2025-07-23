@@ -113,16 +113,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       if (sessionFromUrl === "ai") {
         const aiSession = sessions?.find((s) => s.user_two === null);
 
-        if (aiSession) {
-          setCurrentSessionId(aiSession.id);
-          if (prefillFromUrl) {
-            setTimeout(() => {
-              handleSendMessage(prefillFromUrl);
-            }, 1000);
-          }
-        } else {
-          createSession(null);
+        setCurrentSessionId(aiSession.id);
+        if (prefillFromUrl) {
+          setTimeout(() => {
+            handleSendMessage(prefillFromUrl);
+          }, 1000);
         }
+        
       } else {
         const sessionExists = sessions?.some((s) => s.id === sessionFromUrl);
         if (!sessionExists) {

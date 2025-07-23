@@ -10,6 +10,7 @@ import {
   Mail,
   UserX,
   ShieldAlert,
+  MessageCircle,
 } from "lucide-react";
 
 const navigation = [
@@ -22,6 +23,11 @@ const navigation = [
     name: "Users",
     href: "/admin/users",
     icon: Users,
+  },
+  {
+    name: "Chats",
+    href: "/admin/chats",
+    icon: MessageCircle,
   },
   {
     name: "Reports",

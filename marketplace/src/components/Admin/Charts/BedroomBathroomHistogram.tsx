@@ -64,11 +64,11 @@ const BedroomBathroomHistogram = () => {
   const chartConfig = {
     bedrooms: {
       label: "Bedrooms",
-      color: "hsl(var(--chart-1))",
+      color: "hsl(var(--chart-6))",
     },
     bathrooms: {
-      label: "Bathrooms", 
-      color: "hsl(var(--chart-2))",
+      label: "Bathrooms",
+      color: "hsl(var(--chart-7))",
     },
   };
 

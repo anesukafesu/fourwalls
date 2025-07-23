@@ -74,7 +74,7 @@ const ForYou = () => {
   if (!recommendations || recommendations?.length === 0) return <div></div>;
   return (
     <PropertiesSpotlight
-      title="More For You"
+      title="Recommended for you"
       subtitle="Additional properties you might find interesting."
       properties={recommendations}
       isLoading={isLoading}

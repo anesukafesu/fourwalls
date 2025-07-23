@@ -17,7 +17,12 @@ const AgentProperties = ({ agentId }: AgentPropertiesProps) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('properties')
-        .select('*')
+        .select(`
+          *,
+          neighbourhoods (
+            name
+          )
+        `)
         .eq('agent_id', agentId)
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -139,7 +144,7 @@ const AgentProperties = ({ agentId }: AgentPropertiesProps) => {
                 </div>
                 <div className="flex items-center text-sm text-gray-600">
                   <MapPin className="h-4 w-4 mr-1" />
-                  <span>{property.neighbourhood}, {property.city}</span>
+                  <span>{property.neighbourhoods?.name || 'Unknown'}, {property.city}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <div className="text-lg font-semibold text-primary">

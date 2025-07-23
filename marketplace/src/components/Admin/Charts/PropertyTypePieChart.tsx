@@ -26,8 +26,8 @@ const PropertyTypePieChart = () => {
       return Object.entries(counts).map(([status, count]) => ({
         name: status,
         value: count,
-        fill: status === 'For Rent' ? 'hsl(var(--chart-1))' : 
-              status === 'For Sale' ? 'hsl(var(--chart-2))' : 'hsl(var(--chart-3))'
+        fill: status === 'For Rent' ? 'hsl(var(--chart-4))' : 
+              status === 'For Sale' ? 'hsl(var(--chart-1))' : 'hsl(var(--chart-5))'
       }));
     },
   });
@@ -48,11 +48,15 @@ const PropertyTypePieChart = () => {
   const chartConfig = {
     forRent: {
       label: "For Rent",
-      color: "hsl(var(--chart-1))",
+      color: "hsl(var(--chart-4))",
     },
     forSale: {
       label: "For Sale",
-      color: "hsl(var(--chart-2))",
+      color: "hsl(var(--chart-1))",
+    },
+    other: {
+      label: "Other",
+      color: "hsl(var(--chart-5))",
     },
   };
 

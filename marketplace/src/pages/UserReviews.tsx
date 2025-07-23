@@ -9,7 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star, ArrowLeft, MessageSquare, Flag, Edit2, Trash2 } from 'lucide-react';
+import { Star, ArrowLeft, MessageSquare, Flag, Edit2, Trash2, MoreVertical } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import EditReviewModal from '@/components/Reviews/EditReviewModal';
@@ -17,6 +24,7 @@ import EditReviewModal from '@/components/Reviews/EditReviewModal';
 const UserReviews = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   
   const [ratingFilter, setRatingFilter] = useState<string>('all');
@@ -252,9 +260,19 @@ const UserReviews = () => {
                            <Edit2 className="h-4 w-4" />
                          </Button>
                        )}
-                       <Button variant="ghost" size="sm">
-                         <Flag className="h-4 w-4" />
-                       </Button>
+                       <DropdownMenu>
+                         <DropdownMenuTrigger asChild>
+                           <Button variant="ghost" size="sm">
+                             <MoreVertical className="h-4 w-4" />
+                           </Button>
+                         </DropdownMenuTrigger>
+                         <DropdownMenuContent align="end">
+                           <DropdownMenuItem onClick={() => navigate(`/report-review/${review.id}`)}>
+                             <Flag className="h-4 w-4 mr-2" />
+                             Report Review
+                           </DropdownMenuItem>
+                         </DropdownMenuContent>
+                       </DropdownMenu>
                      </div>
                   </div>
                   <p className="mt-3 text-gray-700">{review.message}</p>

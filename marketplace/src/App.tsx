@@ -38,6 +38,7 @@ import IncidentReport from "./pages/IncidentReport";
 import TemplateManagement from "./pages/TemplateManagement";
 import ReportAgent from "./pages/ReportAgent";
 import ReportListing from "./pages/ReportListing";
+import ReportReview from "./pages/ReportReview";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DataDeletion from "./pages/DataDeletion";
@@ -58,6 +59,7 @@ import AdminTemplates from "./pages/admin/Templates";
 import ContactSubmissions from "./pages/admin/ContactSubmissions";
 import DataDeletionRequests from "./pages/admin/DataDeletionRequests";
 import IncidentReports from "./pages/admin/IncidentReports";
+import AdminChats from "./pages/admin/Chats";
 import AdminLayout from "./components/Admin/AdminLayout";
 import { ServicesProvider } from "./contexts/ServicesContext";
 
@@ -131,6 +133,10 @@ function App() {
                     path="report/listing/:propertyId"
                     element={<ReportListing />}
                   />
+                  <Route
+                    path="report/review/:reviewId"
+                    element={<ReportReview />}
+                  />
                   <Route path="terms-of-service" element={<TermsOfService />} />
                   <Route path="privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="data-deletion" element={<DataDeletion />} />
@@ -142,6 +148,7 @@ function App() {
                   <Route path="admin" element={<AdminLayout />}>
                     <Route index element={<Analytics />} />
                     <Route path="users" element={<Users />} />
+                    <Route path="chats" element={<AdminChats />} />
                     <Route path="reports" element={<Reports />} />
                     <Route path="blogs" element={<Blogs />} />
                     <Route path="blogs/:id" element={<BlogEditor />} />

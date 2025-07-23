@@ -21,7 +21,7 @@ function Analytics() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 bg-neutral-50 min-h-screen p-6">
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <AdminStatsCard
@@ -55,19 +55,29 @@ function Analytics() {
       </div>
 
       {/* Property Views Trend */}
-      <PropertyViewsTrendChart />
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+        <PropertyViewsTrendChart />
+      </div>
 
       {/* Bedroom and Bathroom Distribution */}
-      <BedroomBathroomHistogram />
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+        <BedroomBathroomHistogram />
+      </div>
 
       {/* Properties per Neighbourhood and Property Status */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <PropertiesPerNeighbourhoodChart />
-        <PropertyTypePieChart />
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <PropertiesPerNeighbourhoodChart />
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <PropertyTypePieChart />
+        </div>
       </div>
 
       {/* Price Distribution Box Plots */}
-      <PriceDistributionBoxPlots />
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+        <PriceDistributionBoxPlots />
+      </div>
     </div>
   );
 }

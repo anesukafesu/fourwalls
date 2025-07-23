@@ -1,5 +1,5 @@
 
-import Message from "@/types/Message";
+import { Message } from "@/types/message";
 import MarkdownRenderer from "@/components/Chat/MarkdownRenderer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { shouldShowDateMarker } from "@/lib/shouldShowDateMarker";

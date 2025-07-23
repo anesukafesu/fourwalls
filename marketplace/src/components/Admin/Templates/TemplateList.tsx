@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { Edit, Trash2, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -22,6 +23,8 @@ interface TemplateListProps {
 
 export const TemplateList = ({ onEdit }: TemplateListProps) => {
   const queryClient = useQueryClient();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState<{id: string, name: string} | null>(null);
 
   const { data: templates, isLoading } = useQuery({
     queryKey: ['templates'],
@@ -54,10 +57,18 @@ export const TemplateList = ({ onEdit }: TemplateListProps) => {
     }
   });
 
-  const handleDelete = (id: string, name: string) => {
-    if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
-      deleteMutation.mutate(id);
-    }
+  const handleDeleteClick = (template: Template) => {
+    setTemplateToDelete({
+      id: template.id,
+      name: template.name
+    });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = () => {
+    if (!templateToDelete) return;
+    deleteMutation.mutate(templateToDelete.id);
+    setTemplateToDelete(null);
   };
 
   if (isLoading) {
@@ -92,9 +103,10 @@ export const TemplateList = ({ onEdit }: TemplateListProps) => {
                       <ExternalLink className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant="destructive"
+                      variant="outline"
                       size="sm"
-                      onClick={() => handleDelete(template.id, template.name)}
+                      onClick={() => handleDeleteClick(template)}
+                      className="text-destructive hover:text-destructive hover:bg-red-50"
                       disabled={deleteMutation.isPending}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -118,6 +130,16 @@ export const TemplateList = ({ onEdit }: TemplateListProps) => {
           ))}
         </div>
       )}
+
+      <ConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete Template"
+        description={`Are you sure you want to delete "${templateToDelete?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        onConfirm={handleDelete}
+        variant="destructive"
+      />
     </div>
   );
 };

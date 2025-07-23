@@ -129,30 +129,6 @@ const ContactUs = () => {
 
             {/* Contact Information */}
             <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <MapPin className="h-5 w-5" />
-                    <span>Our Office</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700">
-                    PropertyHub Rwanda
-                    <br />
-                    KG 123 Street, Kimisagara
-                    <br />
-                    Nyarugenge District
-                    <br />
-                    Kigali, Rwanda
-                  </p>
-                  <p className="mt-4 text-sm text-gray-600">
-                    Open Monday - Friday: 8:00 AM - 6:00 PM
-                    <br />
-                    Saturday: 9:00 AM - 4:00 PM
-                  </p>
-                </CardContent>
-              </Card>
 
               <Card>
                 <CardHeader>
@@ -165,19 +141,19 @@ const ContactUs = () => {
                   <div className="space-y-3">
                     <div>
                       <p className="font-medium">General Inquiries</p>
-                      <p className="text-gray-700">info@propertyhub.rw</p>
+                      <p className="text-gray-700">info@fourwalls.rw</p>
                     </div>
                     <div>
                       <p className="font-medium">Support</p>
-                      <p className="text-gray-700">support@propertyhub.rw</p>
+                      <p className="text-gray-700">support@fourwalls.rw</p>
                     </div>
                     <div>
                       <p className="font-medium">Phone</p>
-                      <p className="text-gray-700">+250 788 123 456</p>
+                      <p className="text-gray-700">+250 799 369 129</p>
                     </div>
                     <div>
                       <p className="font-medium">WhatsApp</p>
-                      <p className="text-gray-700">+250 788 123 456</p>
+                      <p className="text-gray-700">+250 799 369 120</p>
                     </div>
                   </div>
                 </CardContent>

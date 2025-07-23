@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useHeaderCounts } from "@/hooks/useHeaderCounts";
 import {
   LogOut,
   Settings,
@@ -23,14 +25,15 @@ import {
   Plus,
   Shield,
   Home,
-  CloudDownload,
   Star,
   FileText,
+  BookOpen,
 } from "lucide-react";
 
 const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const counts = useHeaderCounts();
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.id],
@@ -95,6 +98,12 @@ const Header = () => {
               className="text-gray-700 hover:text-primary transition-colors font-semibold" 
             >
               Properties
+            </Link>
+            <Link
+              to="/blog"
+              className="text-gray-700 hover:text-primary transition-colors font-semibold"
+            >
+              Blog
             </Link>
             {user && (
               <>
@@ -166,7 +175,7 @@ const Header = () => {
                     onClick={() => navigate(`/profile/${user.id}`)}
                   >
                     <User className="mr-2 h-4 w-4" />
-                    View Profile
+                    My Profile
                   </DropdownMenuItem>
 
                   <DropdownMenuItem onClick={() => navigate("/manage-profile")}>
@@ -176,7 +185,12 @@ const Header = () => {
 
                   <DropdownMenuItem onClick={() => navigate("/my-properties")}>
                     <Home className="mr-2 h-4 w-4" />
-                    My Properties
+                    <span className="flex items-center justify-between flex-1">
+                      My Properties
+                      <Badge variant="secondary" className="ml-2">
+                        {counts.properties}
+                      </Badge>
+                    </span>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem onClick={() => navigate("/my-reviews")}>
@@ -191,7 +205,12 @@ const Header = () => {
 
                   <DropdownMenuItem onClick={() => navigate("/bookmarks")}>
                     <Bookmark className="mr-2 h-4 w-4" />
-                    Bookmarks
+                    <span className="flex items-center justify-between flex-1">
+                      My Bookmarks
+                      <Badge variant="secondary" className="ml-2">
+                        {counts.bookmarks}
+                      </Badge>
+                    </span>
                   </DropdownMenuItem>
 
                   {isAdmin && (
@@ -203,21 +222,22 @@ const Header = () => {
 
                   <DropdownMenuItem onClick={() => navigate("/credits")}>
                     <CreditCard className="mr-2 h-4 w-4" />
-                    Credits
+                    <span className="flex items-center justify-between flex-1">
+                      My AI Assistant Credits
+                      <Badge variant="secondary" className="ml-2">
+                        {remainingCredits}
+                      </Badge>
+                    </span>
                   </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
 
                   <DropdownMenuItem
                     onClick={() => navigate("/properties/create")}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
                   >
                     <Plus className="mr-2 h-4 w-4" />
                     List Property
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    onClick={() => navigate("/facebook-imports")}
-                  >
-                    <CloudDownload className="mr-2 h-4 w-4" />
-                    Import Properties from Facebook
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />

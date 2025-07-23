@@ -159,8 +159,7 @@ const TemplateManagement = () => {
   };
 
   return (
-    <AdminLayout title="Template Management">
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold">Templates & Guides</h2>
@@ -388,7 +387,6 @@ const TemplateManagement = () => {
           </div>
         )}
       </div>
-    </AdminLayout>
   );
 };
 

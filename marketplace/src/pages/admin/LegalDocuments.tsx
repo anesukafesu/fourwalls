@@ -1,362 +1,192 @@
-import React, { useState } from "react";
+
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Edit, Trash2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { Save, FileText, Plus, Trash2, ArrowLeft, Edit } from "lucide-react";
-import AdminLayout from "@/components/Admin/AdminLayout";
-import MarkdownEditor from "@/components/Common/MarkdownEditor";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
-interface LegalDocument {
-  id: string;
-  document_type: string;
-  content: string;
-  title?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-function LegalDocuments() {
-  const [selectedDoc, setSelectedDoc] = useState<LegalDocument | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [newDocType, setNewDocType] = useState("");
-  const [newDocTitle, setNewDocTitle] = useState("");
-  const [editContent, setEditContent] = useState("");
+export default function LegalDocuments() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [documentToDelete, setDocumentToDelete] = useState<{id: string, title: string} | null>(null);
 
-  // Fetch all legal documents
-  const { data: legalDocs, isLoading } = useQuery({
-    queryKey: ["legal-documents"],
+  const { data: documents, isLoading } = useQuery({
+    queryKey: ['legal-documents'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("legal_documents")
-        .select("*")
-        .order("created_at", { ascending: false });
-
+        .from('legal_documents')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
       if (error) throw error;
-      return data as LegalDocument[];
+      return data;
     },
   });
 
-  // Set content when document is selected
-  React.useEffect(() => {
-    if (selectedDoc) {
-      setEditContent(selectedDoc.content);
-      if (isEditing) {
-        setNewDocType(selectedDoc.document_type);
-        setNewDocTitle(selectedDoc.title || "");
-      }
-    }
-  }, [selectedDoc, isEditing]);
-
-  // Save document mutation
-  const saveDocumentMutation = useMutation({
-    mutationFn: async ({
-      id,
-      type,
-      content,
-      title,
-    }: {
-      id?: string;
-      type: string;
-      content: string;
-      title?: string;
-    }) => {
-      if (id) {
-        // Update existing document
-        const { data, error } = await supabase
-          .from("legal_documents")
-          .update({
-            document_type: type,
-            content: content.trim(),
-            title: title,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", id);
-
-        if (error) throw error;
-        return data;
-      } else {
-        // Create new document
-        const { data, error } = await supabase.from("legal_documents").insert({
-          document_type: type,
-          content: content.trim(),
-          title: title,
-          updated_at: new Date().toISOString(),
-        });
-
-        if (error) throw error;
-        return data;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["legal-documents"] });
-      toast.success("Document saved successfully");
-      resetForm();
-    },
-    onError: (error) => {
-      toast.error("Failed to save document: " + error.message);
-    },
-  });
-
-  // Delete document mutation
-  const deleteDocumentMutation = useMutation({
+  const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from("legal_documents")
+        .from('legal_documents')
         .delete()
-        .eq("id", id);
-
+        .eq('id', id);
+      
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["legal-documents"] });
-      toast.success("Document deleted successfully");
-      setSelectedDoc(null);
+      queryClient.invalidateQueries({ queryKey: ['legal-documents'] });
+      toast({
+        title: "Success",
+        description: "Document deleted successfully",
+      });
     },
     onError: (error) => {
-      toast.error("Failed to delete document: " + error.message);
-    },
+      toast({
+        title: "Error",
+        description: "Failed to delete document: " + error.message,
+        variant: "destructive",
+      });
+    }
   });
 
-  const resetForm = () => {
-    setSelectedDoc(null);
-    setIsCreating(false);
-    setIsEditing(false);
-    setEditContent("");
-    setNewDocType("");
-    setNewDocTitle("");
+  const handleDeleteClick = (document: any) => {
+    setDocumentToDelete({
+      id: document.id,
+      title: document.title || document.document_type
+    });
+    setDeleteDialogOpen(true);
   };
 
-  const startCreating = () => {
-    resetForm();
-    setIsCreating(true);
+  const handleDelete = () => {
+    if (!documentToDelete) return;
+    deleteMutation.mutate(documentToDelete.id);
+    setDocumentToDelete(null);
   };
 
-  const startEditing = (doc: LegalDocument) => {
-    setSelectedDoc(doc);
-    setIsEditing(true);
-    setEditContent(doc.content);
-    setNewDocType(doc.document_type);
-    setNewDocTitle(doc.title || "");
-  };
-
-  const handleSave = () => {
-    if (!editContent.trim()) {
-      toast.error("Document content cannot be empty");
-      return;
+  const getDocumentTypeColor = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'privacy_policy':
+        return 'bg-blue-100 text-blue-800';
+      case 'terms_of_service':
+        return 'bg-green-100 text-green-800';
+      case 'cookie_policy':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
-
-    if (isCreating) {
-      if (!newDocType.trim() || !newDocTitle.trim()) {
-        toast.error("Document type and title are required");
-        return;
-      }
-      saveDocumentMutation.mutate({
-        type: newDocType,
-        content: editContent,
-        title: newDocTitle,
-      });
-    } else if (selectedDoc) {
-      saveDocumentMutation.mutate({
-        id: selectedDoc.id,
-        type: newDocType || selectedDoc.document_type,
-        content: editContent,
-        title: newDocTitle || selectedDoc.title,
-      });
-    }
-  };
-
-  const handleDelete = (doc: LegalDocument) => {
-    if (window.confirm("Are you sure you want to delete this document?")) {
-      deleteDocumentMutation.mutate(doc.id);
-    }
-  };
-
-  const handleBackToList = () => {
-    resetForm();
   };
 
   if (isLoading) {
     return (
-      <div className="text-center py-8">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading documents...</p>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-muted-foreground">Loading documents...</div>
       </div>
     );
   }
 
-  // Show editor when document is selected or creating new
-  if (selectedDoc || isCreating) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={handleBackToList}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Documents
-          </Button>
-          <div className="flex space-x-2">
-            {selectedDoc && !isEditing && (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => startEditing(selectedDoc)}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDelete(selectedDoc)}
-                  disabled={deleteDocumentMutation.isPending}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </Button>
-              </>
-            )}
-            {(isCreating || isEditing) && (
-              <Button
-                onClick={handleSave}
-                disabled={saveDocumentMutation.isPending}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Save Document
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {(isCreating || isEditing) && (
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {isCreating ? "New Document Details" : "Edit Document Details"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="doc-type">Document Type</Label>
-                <Input
-                  id="doc-type"
-                  value={newDocType}
-                  onChange={(e) => setNewDocType(e.target.value)}
-                  placeholder="e.g., privacy, terms_of_service"
-                />
-              </div>
-              <div>
-                <Label htmlFor="doc-title">Document Title</Label>
-                <Input
-                  id="doc-title"
-                  value={newDocTitle}
-                  onChange={(e) => setNewDocTitle(e.target.value)}
-                  placeholder="e.g., Privacy Policy"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        <MarkdownEditor
-          value={editContent}
-          onChange={setEditContent}
-          placeholder="Write your legal document content here using Markdown..."
-          title={
-            isCreating
-              ? `New ${newDocTitle || "Document"}`
-              : selectedDoc?.title || "Document Content"
-          }
-          readOnly={!isCreating && !isEditing}
-        />
-      </div>
-    );
-  }
-
-  // Show document list
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center">
-          <FileText className="h-5 w-5 mr-2" />
-          <span className="text-lg font-semibold">Legal Documents</span>
+    <div className="space-y-6 bg-neutral-50 min-h-screen p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Legal Documents</h1>
+          <p className="text-muted-foreground">
+            Manage legal documents and policies
+          </p>
         </div>
-        <Button onClick={startCreating}>
-          <Plus className="h-4 w-4 mr-2" />
+        <Button 
+          onClick={() => navigate('/admin/legal-documents/new')}
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
           New Document
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {legalDocs?.map((doc) => (
-          <Card key={doc.id} className="hover:shadow-md transition-shadow">
+      <div className="grid gap-4">
+        {documents?.map((document) => (
+          <Card key={document.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardHeader>
-              <CardTitle className="text-lg">
-                {doc.title || doc.document_type.replace("_", " ").toUpperCase()}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600 mb-2">
-                Type: {doc.document_type}
-              </p>
-              <p className="text-sm text-gray-500 mb-4">
-                Updated: {new Date(doc.updated_at).toLocaleDateString()}
-              </p>
-              <p className="text-sm text-gray-400 mb-4 line-clamp-3">
-                {doc.content.substring(0, 100)}...
-              </p>
-              <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedDoc(doc)}
-                >
-                  <FileText className="h-4 w-4 mr-2" />
-                  View
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => startEditing(doc)}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDelete(doc)}
-                  disabled={deleteDocumentMutation.isPending}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </Button>
+              <div className="flex items-start justify-between">
+                <div className="space-y-2 flex-1">
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    {document.title || document.document_type}
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Badge className={getDocumentTypeColor(document.document_type)}>
+                      {document.document_type.replace('_', ' ').toUpperCase()}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      Created {new Date(document.created_at).toLocaleDateString()}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      Updated {new Date(document.updated_at).toLocaleDateString()}
+                    </Badge>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate(`/admin/legal-documents/${document.id}`)}
+                    className="flex items-center gap-2"
+                  >
+                    <Edit className="h-4 w-4" />
+                    Edit
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDeleteClick(document)}
+                    className="text-destructive hover:text-destructive hover:bg-red-50"
+                    disabled={deleteMutation.isPending}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            </CardContent>
+            </CardHeader>
+            {document.content && (
+              <CardContent>
+                <p className="text-sm text-muted-foreground line-clamp-3">
+                  {document.content.substring(0, 200)}...
+                </p>
+              </CardContent>
+            )}
           </Card>
         ))}
+        
+        {documents?.length === 0 && (
+          <Card className="p-12 text-center bg-white">
+            <h3 className="text-lg font-semibold mb-2">No documents found</h3>
+            <p className="text-muted-foreground mb-4">
+              Get started by creating your first legal document.
+            </p>
+            <Button onClick={() => navigate('/admin/legal-documents/new')}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Document
+            </Button>
+          </Card>
+        )}
       </div>
 
-      {(!legalDocs || legalDocs.length === 0) && (
-        <div className="text-center py-12">
-          <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            No Documents Found
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Create your first legal document to get started.
-          </p>
-          <Button onClick={startCreating}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Document
-          </Button>
-        </div>
-      )}
+      <ConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete Document"
+        description={`Are you sure you want to delete "${documentToDelete?.title}"? This action cannot be undone.`}
+        confirmText="Delete"
+        onConfirm={handleDelete}
+        variant="destructive"
+      />
     </div>
   );
 }
-
-export default LegalDocuments;

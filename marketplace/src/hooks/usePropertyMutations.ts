@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { PropertyFormData } from "./usePropertyForm";
-import { uploadImagesViaEdge } from "@/utils/imageUpload";
 
 export function usePropertyMutations(isEditing: boolean, id?: string) {
   const navigate = useNavigate();
@@ -44,8 +43,21 @@ export function usePropertyMutations(isEditing: boolean, id?: string) {
 
       // If there are new images, saved as image files locally, upload them
       // and append to the existing images
-      if (imageFiles.length > 0) {
-        imageUrls = await uploadImagesViaEdge(imageFiles, propertyId);
+
+      for (const image of imageFiles) {
+        const { error: imageUploadError } = await supabase.storage
+          .from("property-images")
+          .upload(`${propertyId}/${image.name}`, image);
+
+        if (imageUploadError) continue;
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage
+          .from("property-images")
+          .getPublicUrl(`${propertyId}/${image.name}`);
+
+        imageUrls.push(publicUrl);
       }
 
       // Update the database entry to include all images
@@ -87,9 +99,19 @@ export function usePropertyMutations(isEditing: boolean, id?: string) {
 
       let allImages = [...data.images];
 
-      if (imageFiles.length > 0) {
-        const uploadedUrls = await uploadImagesViaEdge(imageFiles, id);
-        allImages = [...allImages, ...uploadedUrls];
+      for (const image of imageFiles) {
+        const { error: imageUploadError } = await supabase.storage
+
+          .from("property-images")
+          .upload(`properties/${id}/${image.name}`, image);
+
+        if (imageUploadError) continue;
+        const {
+          data: { publicUrl },
+        } = supabase.storage
+          .from("property-images")
+          .getPublicUrl(`properties/${id}/${image.name}`);
+        allImages.push(publicUrl);
       }
 
       const { error } = await supabase
