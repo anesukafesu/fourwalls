@@ -82,6 +82,10 @@ const MyProperties = () => {
               <Plus className="h-4 w-4 mr-2" />
               Add Property
             </Button>
+            <Button onClick={() => navigate('/facebook-imports')} variant="outline">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Property
+            </Button>
           </div>
         </div>
 
