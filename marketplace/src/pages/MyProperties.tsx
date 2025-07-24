@@ -78,13 +78,13 @@ const MyProperties = () => {
           </div>
           
           <div className="flex items-center space-x-4">
-            <Button onClick={() => navigate('/facebook-imports')} variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              Import properties from Facebook
-            </Button>
             <Button onClick={() => navigate('/properties/create')}>
               <Plus className="h-4 w-4 mr-2" />
               Add Property
+            </Button>
+            <Button onClick={() => navigate('/facebook-imports')} variant="outline">
+              <Plus className="h-4 w-4 mr-2" />
+              Import from Facebook
             </Button>
           </div>
         </div>

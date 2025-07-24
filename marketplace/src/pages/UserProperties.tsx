@@ -47,16 +47,15 @@ const UserProperties = () => {
   // Delete property mutation
   const deletePropertyMutation = useMutation({
     mutationFn: async (propertyId: string) => {
-      const { error } = await supabase
-        .from('properties')
-        .delete()
-        .eq('id', propertyId);
+      const { error } = await supabase.functions.invoke('delete-property-images', {
+        body: { propertyId }
+      });
       
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-properties'] });
-      toast.success('Property deleted successfully');
+      toast.success('Property and all associated data deleted successfully');
     },
     onError: (error) => {
       toast.error('Failed to delete property: ' + error.message);

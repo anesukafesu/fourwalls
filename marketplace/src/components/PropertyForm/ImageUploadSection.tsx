@@ -7,7 +7,7 @@ import { Upload, X, GripVertical } from 'lucide-react';
 import ImageItem from './ImageItem';
 import ImageModal from './ImageModal';
 import { PropertyFormData } from '@/hooks/usePropertyForm';
-import { deleteImageFromStorage } from '@/utils/imageUtils';
+
 
 interface ImageUploadSectionProps {
   formData: PropertyFormData;
@@ -27,14 +27,8 @@ const ImageUploadSection = ({
   const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
 
   const handleRemoveExistingImage = async (index: number, imageUrl: string) => {
-    try {
-      await deleteImageFromStorage(imageUrl);
-      onRemoveImage(index, true);
-    } catch (error) {
-      console.error('Error deleting image:', error);
-      // Still remove from UI even if deletion fails
-      onRemoveImage(index, true);
-    }
+    // Simply remove from UI - actual deletion handled by backend
+    onRemoveImage(index, true);
   };
 
   return (

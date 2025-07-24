@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import SimilarProperties from './SimilarProperties';
+
 
 interface PropertyImageGalleryProps {
   images: string[];
@@ -51,12 +51,6 @@ const PropertyImageGallery = ({ images, title, propertyId, propertyType, city }:
         </div>
       )}
 
-      {/* Similar Properties Section */}
-      <SimilarProperties 
-        currentPropertyId={propertyId}
-        propertyType={propertyType}
-        city={city}
-      />
     </div>
   );
 };

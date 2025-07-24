@@ -16,7 +16,7 @@ import ListingManagementCard from '@/components/PropertyDetails/ListingManagemen
 import NeighbourhoodSection from '@/components/PropertyDetails/NeighbourhoodSection';
 import { usePropertyViewTracking } from '@/hooks/usePropertyViewTracking';
 import RecommendedProperties from '@/components/PropertyDetails/RecommendedProperties';
-import RelatedProperties from '@/components/PropertyDetails/RelatedProperties';
+
 
 const PropertyDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -113,7 +113,9 @@ const PropertyDetails = () => {
   const deleteMutation = useMutation({
     mutationFn: async () => {
       if (!property?.id) throw new Error('No property ID');
-      const { error } = await supabase.from('properties').delete().eq('id', property.id);
+      const { error } = await supabase.functions.invoke('delete-property-images', {
+        body: { propertyId: property.id }
+      });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -220,7 +222,7 @@ const PropertyDetails = () => {
               <NeighbourhoodSection neighbourhood={neighbourhood} />
             )}
 
-            <RelatedProperties propertyId={property.id} />
+            
 
             {/* Listing Management Card - Only for Property Owner */}
             {isAgent && (
