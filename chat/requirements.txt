@@ -8,3 +8,4 @@ langchain-google-genai
 google-generativeai
 supabase
 python-dotenv
+pytest
