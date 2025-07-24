@@ -4,7 +4,7 @@ Fourwalls is a modular platform for real estate, property management, and AI-pow
 
 ## Links
 
-- [Demo video](https://youtu.be/PDyjBdkOAuk)
+- [Demo video](https://youtu.be/1UJEQaT8RCM)
 - [Analysis, Discussion and Recommendations](https://docs.google.com/document/d/12ociKvbOzayOstIgJypZI6NGMHtAlyRz5EEPAB34gqI)
 - [Live Version](https://fourwalls.rw)
 - [Figma Mockup Designs](https://www.figma.com/design/z4s7yG0teQHY23pD2SmYOf/PropertyHub?node-id=0-1&t=GRMXQoWacxX2uRnf-1)
