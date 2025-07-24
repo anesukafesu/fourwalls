@@ -1,0 +1,6 @@
+pytest
+pytest-mock
+requests-mock
+fastapi
+httpx
+# Add any other test dependencies here
