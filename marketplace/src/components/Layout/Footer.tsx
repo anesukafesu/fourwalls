@@ -130,7 +130,7 @@ const Footer = () => {
               {legalDocs?.map((doc) => (
                 <li key={doc.id}>
                   <button 
-                    onClick={() => navigate(`/${doc.document_type.replace('_', '-')}`)}
+                    onClick={() => navigate(`/legal/${doc.document_type.replace('_', '-')}`)}
                     className="hover:text-primary transition-colors text-left"
                   >
                     {doc.title || doc.document_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
