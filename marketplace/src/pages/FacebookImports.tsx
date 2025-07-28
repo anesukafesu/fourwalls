@@ -45,7 +45,7 @@ const FacebookImports = () => {
         fetchListings();
       }
     }
-  }, []);
+  }, [user, searchParams]);
 
   const handleFacebookCallback = async (code: string) => {
     setLoading(false);
