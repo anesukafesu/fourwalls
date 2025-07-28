@@ -13,6 +13,7 @@ if not SUPABASE_URL or not SUPABASE_ANON_KEY:
 supabase = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 def upload_image_to_bucket(image_data: bytes, storage_path: str) -> str:
+  print(BUCKET_NAME, storage_path)
   try:
     # Upload the file to storage
     supabase.storage.from_(BUCKET_NAME).upload(
