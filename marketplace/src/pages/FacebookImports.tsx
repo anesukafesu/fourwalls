@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,9 +45,10 @@ const FacebookImports = () => {
         fetchListings();
       }
     }
-  }, [user, searchParams]);
+  }, []);
 
   const handleFacebookCallback = async (code: string) => {
+    setLoading(false);
     setImporting(true);
     try {
       if (!services) return;
