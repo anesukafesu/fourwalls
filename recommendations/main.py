@@ -116,10 +116,8 @@ def get_similar(property_id: str):
 def get_from_history(req: ViewHistoryRequest):
   all_recs = []
   for i, pid in enumerate(reversed(req.viewed_ids)):
-
     weight = 1 / (i + 1)
     for rec_id, score in engine.get_recommendations(pid):
-      print(type(score), type(weight), score, weight)
       if rec_id not in req.viewed_ids:
         all_recs.append((score * weight, rec_id))
 
