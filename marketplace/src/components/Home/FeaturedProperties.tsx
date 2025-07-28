@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,7 +9,6 @@ const FeaturedProperties = () => {
   const { data: properties, isLoading } = useQuery({
     queryKey: ["featured-properties", !!user],
     queryFn: async () => {
-     
       if (user) {
         // For signed-in users: Get properties based on view history
         const { data: recentViews } = await supabase
@@ -34,7 +32,7 @@ const FeaturedProperties = () => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                viewed_ids: recentViews.map(v => v.property_id),
+                viewed_ids: recentViews.map((v) => v.property_id),
               }),
             }
           );
@@ -45,7 +43,9 @@ const FeaturedProperties = () => {
           }
 
           const { recommended_ids: recommendedIds } = await response.json();
-          
+
+          console.log("Recommended IDs:", recommendedIds);
+
           if (recommendedIds && recommendedIds.length > 0) {
             const { data: properties, error } = await supabase
               .from("properties")
@@ -76,8 +76,6 @@ const FeaturedProperties = () => {
       .from("property_views")
       .select("property_id")
       .limit(1000);
-    
-    console.log(views);
 
     if (viewError) throw viewError;
     if (!views || views.length === 0) return [];
@@ -88,7 +86,7 @@ const FeaturedProperties = () => {
       if (!viewCounts[v.property_id]) viewCounts[v.property_id] = 0;
       viewCounts[v.property_id]++;
     }
-    
+
     // Sort property_ids by view count descending
     const sortedPropertyIds = Object.entries(viewCounts)
       .sort((a, b) => Number(b[1]) - Number(a[1]))
@@ -119,7 +117,7 @@ const FeaturedProperties = () => {
     <PropertiesSpotlight
       title="Recommended for you"
       subtitle={
-        user 
+        user
           ? "Properties recommended based on your viewing history."
           : "Discover the most viewed properties that capture everyone's attention."
       }
