@@ -16,6 +16,7 @@ def clear_listings_buffer(user_id: str):
   """ Clear the listings buffer for a specific user. """
   try:
     response = supabase.table("listings_buffer").delete().eq("user_id", user_id).execute()
+    print("Clearing listings buffer for:", user_id)
     if response.error:
       raise Exception(f"Failed to clear listings buffer: {response.error.message}")
     return response.data
