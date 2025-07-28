@@ -118,7 +118,7 @@ def get_from_history(req: ViewHistoryRequest):
   for i, pid in enumerate(reversed(req.viewed_ids)):
 
     weight = 1 / (i + 1)
-    for score, rec_id in engine.get_recommendations(pid):
+    for rec_id, score in engine.get_recommendations(pid):
       print(type(score), type(weight), score, weight)
       if rec_id not in req.viewed_ids:
         all_recs.append((score * weight, rec_id))
