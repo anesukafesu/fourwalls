@@ -59,54 +59,87 @@ def insert_property_image(property_id, aspect, embedding, confidence, image_url)
         raise Exception(f"Failed to insert property image: {str(e)}")
     
 
-@app.post("/embed")
+@app.post("/on-upload")
 async def embed_image(request: Request):
-    try:
-        data = await request.json()
-        print("Received webhook data:", data)
-        record = data.get("record")
-        if not record:
-            return JSONResponse(status_code=400, content={"error": "Missing record in webhook data"})
+  """ Endpoint to embed images after upload. Triggered by Supabase Storage webhook.
+  """
+  try:
+    data = await request.json()
+    print("Received webhook data:", data)
+    record = data.get("record")
+    if not record:
+      return JSONResponse(status_code=400, content={"error": "Missing record in webhook data"})
 
-        bucket_id = record.get("bucket_id")
-        file_path = record.get("name")
-        if not bucket_id or not file_path:
-            return JSONResponse(status_code=400, content={"error": "Missing bucket_id or file_path."})
+    bucket_id = record.get("bucket_id")
+    file_path = record.get("name")
+    if not bucket_id or not file_path:
+      return JSONResponse(status_code=400, content={"error": "Missing bucket_id or file_path."})
 
-        # Only process if the image is a property image
-        if not bucket_id == "property-images":
-            print(f"Skipping non-property image: {file_path}")
-            return JSONResponse({"status": "skipped", "reason": "not a property image"})
+    # Only process if the image is a property image
+    if not bucket_id == "property-images":
+      print(f"Skipping non-property image: {file_path}")
+      return JSONResponse({"status": "skipped", "reason": "not a property image"})
 
-        # Download image from Supabase Storage
-        image_bytes = download_image_from_supabase(bucket_id, file_path)
-        print(f"Downloaded image: {file_path} ({len(image_bytes)} bytes)")
+    # Download image from Supabase Storage
+    image_bytes = download_image_from_supabase(bucket_id, file_path)
+    print(f"Downloaded image: {file_path} ({len(image_bytes)} bytes)")
 
-        # Preprocess and embed
-        img_tensor = preprocess_image(image_bytes)
-        feature_map = base_model(img_tensor, training=False)
-        prediction = top_model(feature_map, training=False)
-        pooled_embedding = tf.keras.layers.GlobalAveragePooling2D()(feature_map)
-        embedding_vector = pooled_embedding.numpy()[0].tolist()
-        aspect = "exterior" if prediction.numpy()[0][0] > 0.5 else "interior"
-        confidence = float(prediction.numpy()[0][0])
+    # Preprocess and embed
+    img_tensor = preprocess_image(image_bytes)
+    feature_map = base_model(img_tensor, training=False)
+    prediction = top_model(feature_map, training=False)
+    pooled_embedding = tf.keras.layers.GlobalAveragePooling2D()(feature_map)
+    embedding_vector = pooled_embedding.numpy()[0].tolist()
+    aspect = "exterior" if prediction.numpy()[0][0] > 0.5 else "interior"
+    confidence = float(prediction.numpy()[0][0])
 
-        # Extract property_id from file_path (after 'property_image/' and before the next slash)
-        property_id = file_path.split("/")[0]
+    # Extract property_id from file_path (after 'property_image/' and before the next slash)
+    property_id = file_path.split("/")[0]
 
-        # Get public URL for the image
-        public_url = supabase.storage.from_(bucket_id).get_public_url(file_path)
+    # Get public URL for the image
+    public_url = supabase.storage.from_(bucket_id).get_public_url(file_path)
 
-        confidence = 1 - confidence if aspect == "interior" else confidence
+    confidence = 1 - confidence if aspect == "interior" else confidence
 
-        # Insert into property_images table
-        insert_property_image(property_id, aspect, embedding_vector, confidence, public_url)
+    # Insert into property_images table
+    insert_property_image(property_id, aspect, embedding_vector, confidence, public_url)
 
-        return JSONResponse({"status": "ok"})
-    except Exception as e:
-        print("Error in /embed:", str(e))
-        return JSONResponse(status_code=500, content={"error": str(e)})
+    return JSONResponse({"status": "ok"})
+  except Exception as e:
+    print("Error in /embed:", str(e))
+    return JSONResponse(status_code=500, content={"error": str(e)})
 
+@app.post('/on-delete')
+async def on_delete(request: Request):
+  """ Endpoint to handle image deletions. Triggered by Supabase Storage webhook.
+  """
+  try:
+    data = await request.json()
+    print("Received delete webhook data:", data)
+    record = data.get("record")
+    if not record:
+      return JSONResponse(status_code=400, content={"error": "Missing record in webhook data"})
+
+    bucket_id = record.get("bucket_id")
+    file_path = record.get("name")
+    if not bucket_id or not file_path:
+      return JSONResponse(status_code=400, content={"error": "Missing bucket_id or file_path."})
+
+    # Only process if the image is a property image
+    if not bucket_id == "property-images":
+      print(f"Skipping non-property image: {file_path}")
+      return JSONResponse({"status": "skipped", "reason": "not a property image"})
+
+    # Create image url
+    public_url = supabase.storage.from_(bucket_id).get_public_url(file_path)
+
+    # Delete entry with image url from property_images table
+    supabase.table("property_images").delete().eq("url", public_url).execute()
+
+    return JSONResponse({"status": "ok"})
+  except Exception as e:
+    print("Error in /on-delete:", str(e))
+    return JSONResponse(status_code=500, content={"error": str(e)})
 
 @app.get("/health")
 def health_check():
