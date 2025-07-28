@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import PropertyCard from '@/components/Home/PropertyCard';
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import PropertyCard from "@/components/Home/PropertyCard";
 
 interface RecommendedPropertiesProps {
   propertyId: string;
@@ -9,32 +9,32 @@ interface RecommendedPropertiesProps {
 
 const RecommendedProperties = ({ propertyId }: RecommendedPropertiesProps) => {
   const { data: recommendations, isLoading } = useQuery({
-    queryKey: ['property-recommendations', propertyId],
+    queryKey: ["property-recommendations", propertyId],
     queryFn: async () => {
       try {
-        const response = await fetch(`https://akafesu-fourwalls-recommendations-api.hf.space/recommendations/${propertyId}`);
-        
-        if (!response.ok) throw new Error('Failed to fetch recommendations');
+        const response = await fetch(
+          `https://akafesu-fourwalls-recommendations-api.hf.space/recommendations/${propertyId}`
+        );
 
-        const recommendedIds = await response.json();
+        if (!response.ok) throw new Error("Failed to fetch recommendations");
 
-        console.log('Recommended IDs:', recommendedIds);
-        
+        const { recommended_ids: recommendedIds } = await response.json();
+
         // Fetch property details for recommended IDs
         if (recommendedIds && recommendedIds.length > 0) {
           const { data: properties, error } = await supabase
-            .from('properties')
-            .select('*')
-            .in('id', recommendedIds)
+            .from("properties")
+            .select("*")
+            .in("id", recommendedIds)
             .limit(4);
-          
+
           if (error) throw error;
           return properties || [];
         }
-        
+
         return [];
       } catch (error) {
-        console.error('Error fetching property recommendations:', error);
+        console.error("Error fetching property recommendations:", error);
         return [];
       }
     },
@@ -65,7 +65,9 @@ const RecommendedProperties = ({ propertyId }: RecommendedPropertiesProps) => {
     <Card>
       <CardHeader>
         <CardTitle>You might also like</CardTitle>
-        <p className="text-gray-600">Similar properties you might be interested in</p>
+        <p className="text-gray-600">
+          Similar properties you might be interested in
+        </p>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
