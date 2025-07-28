@@ -1,5 +1,5 @@
 from fastapi import Request, HTTPException, Header
-from utils.supabase import supabase, upload_properties
+from utils.supabase import supabase, upload_properties, clear_listings_buffer
 from utils.parse_with_gemini import parse_with_gemini
 
 async def parse(request: Request, authorization: str = Header(...)):
@@ -45,5 +45,11 @@ async def parse(request: Request, authorization: str = Header(...)):
 
   if "error" in properties_response:
     raise HTTPException(status_code=500, detail=properties_response["error"])
+  
+  # Clear the listings buffer after successful upload
+  try:
+    clear_listings_buffer(user_id)
+  except Exception as e:
+    raise HTTPException(status_code=500, detail=f"Failed to clear listings buffer: {str(e)}")
 
   return {"properties": properties_response}

@@ -197,6 +197,8 @@ const FacebookImports = () => {
       if (!response.ok) throw await response.text();
 
       const result = await response.json();
+
+      console.log('Extraction result:', result);
       const addedCount = result.properties_added || 0;
       const submittedCount = selectedIds.size;
       

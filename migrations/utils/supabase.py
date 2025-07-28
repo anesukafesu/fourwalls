@@ -12,6 +12,16 @@ if not SUPABASE_URL or not SUPABASE_ANON_KEY:
 
 supabase = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
 
+def clear_listings_buffer(user_id: str):
+  """ Clear the listings buffer for a specific user. """
+  try:
+    response = supabase.table("listings_buffer").delete().eq("user_id", user_id).execute()
+    if response.error:
+      raise Exception(f"Failed to clear listings buffer: {response.error.message}")
+    return response.data
+  except Exception as e:
+    raise Exception(f"An error occurred while clearing listings buffer: {str(e)}")
+
 def upload_image_to_bucket(image_data: bytes, storage_path: str) -> str:
   try:
     # Upload the file to storage
