@@ -53,9 +53,8 @@ const FacebookImports = () => {
     try {
       if (!services) return;
       if (!user) return;
-      if (!session)  return;
+      if (!session.access_token)  return;
 
-      console.log("running");
       const response = await fetch(`${services['MIGRATIONS']}/migrate/facebook`, {
         headers: {
           'Content-Type': 'application/json',
