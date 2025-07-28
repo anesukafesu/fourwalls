@@ -19,7 +19,6 @@ def upload_image_to_bucket(image_data: bytes, storage_path: str) -> str:
       path=storage_path,
       file=image_data,
       file_options={"content-type": "image/jpeg"},
-      upsert=True
     )
     # Build the public URL
     public_url = supabase.storage.from_(BUCKET_NAME).get_public_url(storage_path)
