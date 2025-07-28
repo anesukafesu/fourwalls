@@ -71,6 +71,8 @@ async def upload_properties(properties, user_id, post_ids_to_image_urls_map):
     insert_resp = supabase.table("properties").insert(formatted_properties).execute()
     inserted = insert_resp.data
 
+    print(f"Inserted {inserted} properties")
+
     if not inserted:
       return {"error": "Failed to insert properties", "details": insert_resp.message}
 
