@@ -45,13 +45,13 @@ def parse_price(price_str):
 def infer_status(price, status):
   return status or ("for_sale" if price > 500000 else "for_rent")
 
-async def upload_properties(properties, user_id):
+async def upload_properties(properties, user_id, post_ids_to_image_urls_map):
   neighbourhoods = supabase.table("neighbourhoods").select("id, name").execute().data
   neighbourhood_map = {n["name"].lower(): n["id"] for n in neighbourhoods}
 
   formatted_properties = []
   for prop in properties:
-    if not all(k in prop for k in ["title", "neighbourhood", "city", "price"]):
+    if not all(k in prop for k in ["title", "neighbourhood", "price"]):
       continue
 
     price = parse_price(str(prop["price"]))
@@ -71,8 +71,24 @@ async def upload_properties(properties, user_id):
   try:
     insert_resp = supabase.table("properties").insert(formatted_properties).execute()
     inserted = insert_resp.data
+
     if not inserted:
       return {"error": "Failed to insert properties", "details": insert_resp.message}
+
+    for prop in inserted:
+      post_id = prop.get("facebook_import_id")
+      if post_id and post_id in post_ids_to_image_urls_map:
+        image_urls = post_ids_to_image_urls_map[post_id]
+        for url in image_urls:
+          if url:
+            image_data = requests.get(url).content
+            path = f"{prop['id']}/{os.path.basename(url)}"
+            supa_url = upload_image_to_bucket(image_data, path)
+            if supa_url:
+              prop["images"].append(supa_url)
+            
+      supabase.table("properties").update({"images": prop.get("images", [])}).eq("id", prop["id"]).execute()
+    
   except Exception as e:
     print(e)
     return {"error": "An exception occurred while inserting properties", "details": str(e)}

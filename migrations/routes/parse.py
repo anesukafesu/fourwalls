@@ -29,6 +29,7 @@ async def parse(request: Request, authorization: str = Header(...)):
       .execute()
     )
     posts = response.data
+    post_id_to_image_urls_map = {post["post_id"]: post["image_urls"] for post in posts if "image_urls" in post}
   except Exception as e:
     raise HTTPException(status_code=500, detail=f"Failed to fetch posts: {str(e)}")
 
@@ -38,7 +39,7 @@ async def parse(request: Request, authorization: str = Header(...)):
   properties = await parse_with_gemini(posts)
 
   try:
-    properties_response = await upload_properties(properties, user_id)
+    properties_response = await upload_properties(properties, user_id, post_id_to_image_urls_map)
   except Exception as e:
     raise HTTPException(status_code=500, detail=f"Failed to upload properties: {str(e)}")
 
