@@ -51,6 +51,7 @@ const FacebookImports = () => {
     setLoading(false);
     setImporting(true);
     try {
+      console.log("running")
       if (!services) return;
       const response = await fetch(`${services['MIGRATIONS']}/migrate/facebook`, {
         headers: {
