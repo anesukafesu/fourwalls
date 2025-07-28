@@ -5,7 +5,7 @@ from supabase import create_client
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY")
-BUCKET_NAME = "property_images"
+BUCKET_NAME = "property-images"
 
 if not SUPABASE_URL or not SUPABASE_ANON_KEY:
   raise Exception("Missing Supabase credentials in environment variables")
@@ -13,7 +13,6 @@ if not SUPABASE_URL or not SUPABASE_ANON_KEY:
 supabase = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 def upload_image_to_bucket(image_data: bytes, storage_path: str) -> str:
-  print(BUCKET_NAME, storage_path)
   try:
     # Upload the file to storage
     supabase.storage.from_(BUCKET_NAME).upload(
