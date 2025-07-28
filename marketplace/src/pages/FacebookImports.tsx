@@ -55,6 +55,10 @@ const FacebookImports = () => {
       if (!user) return;
       if (!session.access_token)  return;
 
+      console.log("Code:", code);
+      console.log("Redirect URI:", REDIRECT_URI);
+      console.log("Session Access Token:", session.access_token);
+
       const response = await fetch(`${services['MIGRATIONS']}/migrate/facebook`, {
         headers: {
           'Content-Type': 'application/json',
