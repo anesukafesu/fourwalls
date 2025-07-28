@@ -121,7 +121,12 @@ export default function Neighbourhoods() {
                     
                     {neighbourhood.description && (
                       <div className="prose prose-sm max-w-none text-gray-700">
-                        <ReactMarkdown>{neighbourhood.description}</ReactMarkdown>
+                        <ReactMarkdown>
+                          {neighbourhood.description.length > 200 
+                            ? neighbourhood.description.substring(0, 200) + '...' 
+                            : neighbourhood.description
+                          }
+                        </ReactMarkdown>
                       </div>
                     )}
                   </div>

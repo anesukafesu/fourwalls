@@ -1,4 +1,4 @@
-# 🏘️ FourWays Rwanda – Property Marketplace
+# 🏘️ Fourwalls Rwanda – Property Marketplace
 
 **FourWays** is a property marketplace designed to make buying, selling, and renting property in Rwanda simple, fast, and visual. Whether you’re a landlord, agent, or someone searching for a new place to live, FourWays makes the process easier and more transparent.
 

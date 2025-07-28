@@ -15,14 +15,26 @@ const AdminCreditSales = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('credit_transactions')
-        .select(`
-          *,
-          profiles!credit_transactions_user_id_fkey(full_name, email)
-        `)
+        .select(`*`)
         .order('created_at', { ascending: false });
-
+      
       if (error) throw error;
-      return data;
+      
+      // Fetch profiles separately
+      const transactionsWithProfiles = await Promise.all(
+        data.map(async (transaction) => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, email')
+            .eq('id', transaction.user_id)
+            .single();
+            
+          return { ...transaction, profiles: profile };
+        })
+      );
+      
+      return transactionsWithProfiles;
+
     },
   });
 

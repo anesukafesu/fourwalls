@@ -60,6 +60,7 @@ import ContactSubmissions from "./pages/admin/ContactSubmissions";
 import DataDeletionRequests from "./pages/admin/DataDeletionRequests";
 import IncidentReports from "./pages/admin/IncidentReports";
 import AdminChats from "./pages/admin/Chats";
+import AdminProperties from "./pages/admin/Properties";
 import AdminLayout from "./components/Admin/AdminLayout";
 import { ServicesProvider } from "./contexts/ServicesContext";
 
@@ -148,6 +149,7 @@ function App() {
                   <Route path="admin" element={<AdminLayout />}>
                     <Route index element={<Analytics />} />
                     <Route path="users" element={<Users />} />
+                    <Route path="properties" element={<AdminProperties />} />
                     <Route path="chats" element={<AdminChats />} />
                     <Route path="reports" element={<Reports />} />
                     <Route path="blogs" element={<Blogs />} />

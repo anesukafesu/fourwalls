@@ -69,18 +69,45 @@ const AdminChats = () => {
       const { data, error } = await supabase
         .from('chat_sessions')
         .select(`
-          *,
-          profiles_user_one:profiles!chat_sessions_user_one_fkey(id, full_name, email, avatar_url),
-          profiles_user_two:profiles!chat_sessions_user_two_fkey(id, full_name, email, avatar_url)
+          *
         `)
         .or(`user_one.eq.${selectedUser},user_two.eq.${selectedUser}`)
         .order('updated_at', { ascending: false });
       
       if (error) throw error;
+      
+      // Fetch profiles separately to avoid foreign key issues
+      const sessionsWithProfiles = await Promise.all(
+        data.map(async (session) => {
+          const { data: userOneProfile } = await supabase
+            .from('profiles')
+            .select('id, full_name, email, avatar_url')
+            .eq('id', session.user_one)
+            .single();
+            
+          let userTwoProfile = null;
+          if (session.user_two) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('id, full_name, email, avatar_url')
+              .eq('id', session.user_two)
+              .single();
+            userTwoProfile = profile;
+          }
+          
+          return {
+            ...session,
+            profiles_user_one: userOneProfile,
+            profiles_user_two: userTwoProfile
+          };
+        })
+      );
+      
+      if (error) throw error;
 
       // Get message counts for each session
       const sessionsWithCounts = await Promise.all(
-        data.map(async (session) => {
+        sessionsWithProfiles.map(async (session) => {
           const { count } = await supabase
             .from('chat_messages')
             .select('*', { count: 'exact', head: true })
@@ -116,15 +143,31 @@ const AdminChats = () => {
       
       const { data, error } = await supabase
         .from('chat_messages')
-        .select(`
-          *,
-          profiles(id, full_name, email, avatar_url)
-        `)
+        .select(`*`)
         .eq('chat_session_id', selectedSession)
         .order('created_at', { ascending: true });
       
       if (error) throw error;
-      return data;
+      
+      // Fetch profiles for each message
+      const messagesWithProfiles = await Promise.all(
+        data.map(async (message) => {
+          if (!message.sent_by) {
+            return { ...message, profiles: null };
+          }
+          
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('id, full_name, email, avatar_url')
+            .eq('id', message.sent_by)
+            .single();
+            
+          return { ...message, profiles: profile };
+        })
+      );
+      
+      return messagesWithProfiles;
+      
     },
     enabled: !!selectedSession,
   });

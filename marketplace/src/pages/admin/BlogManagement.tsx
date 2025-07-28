@@ -22,14 +22,25 @@ export default function BlogManagement() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('blog_posts')
-        .select(`
-          *,
-          profiles(full_name, email)
-        `)
+        .select(`*`)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      
+      // Fetch profiles separately
+      const postsWithProfiles = await Promise.all(
+        data.map(async (post) => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, email')
+            .eq('id', post.author_id)
+            .single();
+            
+          return { ...post, profiles: profile };
+        })
+      );
+      
+      return postsWithProfiles;
     },
   });
 

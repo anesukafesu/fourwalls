@@ -14,8 +14,8 @@ const NeighbourhoodSnapshot = () => {
       const { data, error } = await supabase
         .from("neighbourhoods")
         .select("*")
-        .limit(4)
-        .order("created_at", { ascending: false });
+        .order("name", { ascending: true })
+        .limit(4);
 
       if (error) throw error;
       return data;

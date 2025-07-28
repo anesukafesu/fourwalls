@@ -1,10 +1,11 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +17,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useHeaderCounts } from "@/hooks/useHeaderCounts";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   LogOut,
   Settings,
@@ -28,12 +30,16 @@ import {
   Star,
   FileText,
   BookOpen,
+  Menu,
+  MessageCircle,
 } from "lucide-react";
 
 const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const counts = useHeaderCounts();
+  const isMobile = useIsMobile();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.id],
@@ -123,8 +129,122 @@ const Header = () => {
             )}
           </nav>
 
-          {/* User Section */}
+          {/* Mobile Menu Button */}
           <div className="flex items-center space-x-4">
+            {isMobile && (
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="sm" className="md:hidden">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-80">
+                  <div className="flex flex-col space-y-4 pt-6">
+                    <Link
+                      to="/"
+                      className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Home className="h-5 w-5" />
+                      <span className="font-medium">Home</span>
+                    </Link>
+                    <Link
+                      to="/properties"
+                      className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Star className="h-5 w-5" />
+                      <span className="font-medium">Properties</span>
+                    </Link>
+                    <Link
+                      to="/blog"
+                      className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <BookOpen className="h-5 w-5" />
+                      <span className="font-medium">Blog</span>
+                    </Link>
+                    {user && (
+                      <>
+                        <Link
+                          to="/bookmarks"
+                          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Bookmark className="h-5 w-5" />
+                          <span className="font-medium">Bookmarks</span>
+                          <Badge variant="secondary" className="ml-auto">
+                            {counts.bookmarks}
+                          </Badge>
+                        </Link>
+                        <Link
+                          to="/chat"
+                          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <MessageCircle className="h-5 w-5" />
+                          <span className="font-medium">Chat</span>
+                        </Link>
+                        <Link
+                          to="/my-properties"
+                          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Home className="h-5 w-5" />
+                          <span className="font-medium">My Properties</span>
+                          <Badge variant="secondary" className="ml-auto">
+                            {counts.properties}
+                          </Badge>
+                        </Link>
+                        <Link
+                          to="/properties/create"
+                          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Plus className="h-5 w-5" />
+                          <span className="font-medium">List Property</span>
+                        </Link>
+                        {isAdmin && (
+                          <Link
+                            to="/admin"
+                            className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <Shield className="h-5 w-5" />
+                            <span className="font-medium">Admin</span>
+                          </Link>
+                        )}
+                        <div className="border-t pt-4">
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start"
+                            onClick={() => {
+                              handleSignOut();
+                              setMobileMenuOpen(false);
+                            }}
+                          >
+                            <LogOut className="h-5 w-5 mr-3" />
+                            Sign Out
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                    {!user && (
+                      <Link
+                        to="/auth"
+                        className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <User className="h-5 w-5" />
+                        <span className="font-medium">Sign In</span>
+                      </Link>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            )}
+
+            {/* User Section */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
