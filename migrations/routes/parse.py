@@ -52,4 +52,4 @@ async def parse(request: Request, authorization: str = Header(...)):
   except Exception as e:
     raise HTTPException(status_code=500, detail=f"Failed to clear listings buffer: {str(e)}")
 
-  return properties_response
+  return {"properties": properties_response}
