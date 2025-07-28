@@ -100,4 +100,4 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
   );
 };
 
-export default MarkdownEditor;
+export { MarkdownEditor };

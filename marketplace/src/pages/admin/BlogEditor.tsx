@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { ArrowLeft, Save, Eye } from "lucide-react";
-import MarkdownEditor from "@/components/Common/MarkdownEditor";
+import { MarkdownEditor } from "@/components/Common/MarkdownEditor";
 
 interface BlogPost {
   id: string;

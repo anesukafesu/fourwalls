@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -39,8 +38,6 @@ import TemplateManagement from "./pages/TemplateManagement";
 import ReportAgent from "./pages/ReportAgent";
 import ReportListing from "./pages/ReportListing";
 import ReportReview from "./pages/ReportReview";
-import TermsOfService from "./pages/TermsOfService";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DataDeletion from "./pages/DataDeletion";
 import NotFound from "./pages/NotFound";
 import LegalDocument from "./pages/LegalDocument";
@@ -69,134 +66,147 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <ServicesProvider>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <ScrollToTop />
-          <AuthProvider>
-            <ChatProvider>
-              <Routes>
-                <Route path="/" element={<Layout />}>
-                  <Route index element={<Index />} />
-                  <Route path="auth" element={<Auth />} />
-                  <Route path="properties" element={<Properties />} />
-                  <Route path="properties/create" element={<PropertyForm />} />
-                  <Route path="properties/:id" element={<PropertyDetails />} />
-                  <Route path="edit-property/:id" element={<PropertyForm />} />
-                  <Route path="my-properties" element={<MyProperties />} />
-                  <Route path="profile/:userId" element={<UserProfile />} />
-                  <Route
-                    path="profile/:id/properties"
-                    element={<UserProperties />}
-                  />
-                  <Route path="profile/:id/reviews" element={<UserReviews />} />
-                  <Route path="my-reviews" element={<MyReviews />} />
-                  <Route path="manage-profile" element={<ManageProfile />} />
-                  <Route
-                    path="profile-settings"
-                    element={<ProfileSettings />}
-                  />
-                  <Route path="chat" element={<Chat />} />
-                  <Route path="chat/:sessionId" element={<Chat />} />
-                  <Route path="bookmarks" element={<Bookmarks />} />
-                  <Route path="my-reports" element={<MyReports />} />
-                  <Route
-                    path="mortgage-calculator"
-                    element={<MortgageCalculator />}
-                  />
-                  <Route path="templates" element={<Templates />} />
-                  <Route path="credits" element={<Credits />} />
-                  <Route
-                    path="neighbourhoods"
-                    element={<NeighbourhoodGuide />}
-                  />
-                  <Route
-                    path="neighbourhoods/:id"
-                    element={<NeighbourhoodDetails />}
-                  />
-                  <Route path="blog" element={<Blog />} />
-                  <Route path="blog/new" element={<BlogEditor />} />
-                  <Route path="blog/edit/:id" element={<BlogEditor />} />
-                  <Route
-                    path="facebook-imports"
-                    element={<FacebookImports />}
-                  />
-                  <Route path="contact" element={<ContactUs />} />
-                  <Route path="incident-report" element={<IncidentReport />} />
-                  <Route path="templates" element={<TemplateManagement />} />
-                  <Route
-                    path="report/agent/:agentId"
-                    element={<ReportAgent />}
-                  />
-                  <Route
-                    path="report/listing/:propertyId"
-                    element={<ReportListing />}
-                  />
-                  <Route
-                    path="report/review/:reviewId"
-                    element={<ReportReview />}
-                  />
-                  <Route path="terms-of-service" element={<TermsOfService />} />
-                  <Route path="privacy-policy" element={<PrivacyPolicy />} />
-                  <Route path="data-deletion" element={<DataDeletion />} />
-                  
-                  {/* Legal document route */}
-                  <Route path="legal/:documentType" element={<LegalDocument />} />
-
-                  {/* Admin Routes */}
-                  <Route path="admin" element={<AdminLayout />}>
-                    <Route index element={<Analytics />} />
-                    <Route path="users" element={<Users />} />
-                    <Route path="properties" element={<AdminProperties />} />
-                    <Route path="chats" element={<AdminChats />} />
-                    <Route path="reports" element={<Reports />} />
-                    <Route path="blogs" element={<Blogs />} />
-                    <Route path="blogs/:id" element={<BlogEditor />} />
-                    <Route path="templates" element={<AdminTemplates />} />
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <ScrollToTop />
+            <AuthProvider>
+              <ChatProvider>
+                <Routes>
+                  <Route path="/" element={<Layout />}>
+                    <Route index element={<Index />} />
+                    <Route path="auth" element={<Auth />} />
+                    <Route path="properties" element={<Properties />} />
                     <Route
-                      path="legal-documents"
-                      element={<LegalDocuments />}
+                      path="properties/create"
+                      element={<PropertyForm />}
                     />
                     <Route
-                      path="legal-documents/:id"
-                      element={<LegalDocumentEditor />}
+                      path="properties/:id"
+                      element={<PropertyDetails />}
                     />
+                    <Route
+                      path="edit-property/:id"
+                      element={<PropertyForm />}
+                    />
+                    <Route path="my-properties" element={<MyProperties />} />
+                    <Route path="profile/:userId" element={<UserProfile />} />
+                    <Route
+                      path="profile/:id/properties"
+                      element={<UserProperties />}
+                    />
+                    <Route
+                      path="profile/:id/reviews"
+                      element={<UserReviews />}
+                    />
+                    <Route path="my-reviews" element={<MyReviews />} />
+                    <Route path="manage-profile" element={<ManageProfile />} />
+                    <Route
+                      path="profile-settings"
+                      element={<ProfileSettings />}
+                    />
+                    <Route path="chat" element={<Chat />} />
+                    <Route path="chat/:sessionId" element={<Chat />} />
+                    <Route path="bookmarks" element={<Bookmarks />} />
+                    <Route path="my-reports" element={<MyReports />} />
+                    <Route
+                      path="mortgage-calculator"
+                      element={<MortgageCalculator />}
+                    />
+                    <Route path="templates" element={<Templates />} />
+                    <Route path="credits" element={<Credits />} />
                     <Route
                       path="neighbourhoods"
-                      element={<Neighbourhoods />}
+                      element={<NeighbourhoodGuide />}
                     />
                     <Route
                       path="neighbourhoods/:id"
-                      element={<AdminNeighbourhoodEdit />}
+                      element={<NeighbourhoodDetails />}
+                    />
+                    <Route path="blog" element={<Blog />} />
+                    <Route path="blog/new" element={<BlogEditor />} />
+                    <Route path="blog/edit/:id" element={<BlogEditor />} />
+                    <Route
+                      path="facebook-imports"
+                      element={<FacebookImports />}
+                    />
+                    <Route path="contact" element={<ContactUs />} />
+                    <Route
+                      path="incident-report"
+                      element={<IncidentReport />}
+                    />
+                    <Route path="templates" element={<TemplateManagement />} />
+                    <Route
+                      path="report/agent/:agentId"
+                      element={<ReportAgent />}
                     />
                     <Route
-                      path="credits"
-                      element={<AdminCreditSales />}
+                      path="report/listing/:propertyId"
+                      element={<ReportListing />}
                     />
                     <Route
-                      path="contact-submissions"
-                      element={<ContactSubmissions />}
+                      path="report/review/:reviewId"
+                      element={<ReportReview />}
                     />
-                    <Route
-                      path="data-deletion-requests"
-                      element={<DataDeletionRequests />}
-                    />
-                    <Route
-                      path="incident-reports"
-                      element={<IncidentReports />}
-                    />
-                  </Route>
+                    <Route path="data-deletion" element={<DataDeletion />} />
 
-                  <Route path="*" element={<NotFound />} />
-                </Route>
-              </Routes>
-            </ChatProvider>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+                    {/* Legal document route */}
+                    <Route
+                      path="legal/:documentType"
+                      element={<LegalDocument />}
+                    />
+
+                    {/* Admin Routes */}
+                    <Route path="admin" element={<AdminLayout />}>
+                      <Route index element={<Analytics />} />
+                      <Route path="users" element={<Users />} />
+                      <Route path="properties" element={<AdminProperties />} />
+                      <Route path="chats" element={<AdminChats />} />
+                      <Route path="reports" element={<Reports />} />
+                      <Route path="blogs" element={<Blogs />} />
+                      <Route path="blogs/:id" element={<BlogEditor />} />
+                      <Route path="templates" element={<AdminTemplates />} />
+                      <Route
+                        path="legal-documents"
+                        element={<LegalDocuments />}
+                      />
+                      <Route
+                        path="legal-documents/:type"
+                        element={<LegalDocumentEditor />}
+                      />
+                      <Route
+                        path="neighbourhoods"
+                        element={<Neighbourhoods />}
+                      />
+                      <Route
+                        path="neighbourhoods/:id"
+                        element={<AdminNeighbourhoodEdit />}
+                      />
+                      <Route path="credits" element={<AdminCreditSales />} />
+                      <Route
+                        path="contact-submissions"
+                        element={<ContactSubmissions />}
+                      />
+                      <Route
+                        path="data-deletion-requests"
+                        element={<DataDeletionRequests />}
+                      />
+                      <Route
+                        path="incident-reports"
+                        element={<IncidentReports />}
+                      />
+                    </Route>
+
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
+                </Routes>
+              </ChatProvider>
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
     </ServicesProvider>
   );
 }

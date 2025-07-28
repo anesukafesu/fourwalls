@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,32 +7,43 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Save } from "lucide-react";
+import { MarkdownEditor } from "@/components/Common/MarkdownEditor";
+import { Input } from "@/components/ui/input";
 
 const LegalDocumentEditor = () => {
-  const navigate = useNavigate();
+  const { type } = useParams();
+  const isNew = type == "new";
   const { toast } = useToast();
-  const [termsContent, setTermsContent] = useState("");
-  const [privacyContent, setPrivacyContent] = useState("");
+  const navigate = useNavigate();
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [typeInput, setTypeInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetchDocuments();
+    fetchDocument();
   }, []);
 
-  const fetchDocuments = async () => {
+  const fetchDocument = async () => {
+    if (type == "new") {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from("legal_documents")
-        .select("*");
+        .select("*")
+        .eq("document_type", type)
+        .single();
 
       if (error) throw error;
 
-      const termsDoc = data?.find((doc) => doc.document_type === "terms");
-      const privacyDoc = data?.find((doc) => doc.document_type === "privacy");
-
-      setTermsContent(termsDoc?.content || "");
-      setPrivacyContent(privacyDoc?.content || "");
+      setTitle(data.title || "");
+      setContent(data.content);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching documents:", error);
       toast({
@@ -45,15 +56,11 @@ const LegalDocumentEditor = () => {
     }
   };
 
-  const saveDocument = async (type: "terms" | "privacy", content: string) => {
+  const saveDocument = async () => {
     setSaving(true);
     try {
       const { error } = await supabase.from("legal_documents").upsert(
-        {
-          document_type: type,
-          content: content,
-          updated_at: new Date().toISOString(),
-        },
+        { title, content, document_type: isNew ? typeInput : type },
         {
           onConflict: "document_type",
         }
@@ -63,10 +70,10 @@ const LegalDocumentEditor = () => {
 
       toast({
         title: "Success",
-        description: `${
-          type === "terms" ? "Terms of Service" : "Privacy Policy"
-        } saved successfully`,
+        description: `${title} saved successfully`,
       });
+
+      navigate(-1);
     } catch (error) {
       console.error("Error saving document:", error);
       toast({
@@ -93,71 +100,43 @@ const LegalDocumentEditor = () => {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => navigate("/admin")}
+          onClick={() => navigate(-1)}
           className="flex items-center gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Dashboard
+          Back
         </Button>
-        <h1 className="text-2xl font-bold text-gray-700">
-          Legal Documents Editor
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-700">Edit {title}</h1>
       </div>
-
-      <Tabs defaultValue="terms" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="terms">Terms of Service</TabsTrigger>
-          <TabsTrigger value="privacy">Privacy Policy</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="terms">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-gray-700">Terms of Service</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea
-                value={termsContent}
-                onChange={(e) => setTermsContent(e.target.value)}
-                placeholder="Enter Terms of Service content..."
-                className="min-h-[400px] resize-none"
-              />
-              <Button
-                onClick={() => saveDocument("terms", termsContent)}
-                disabled={saving}
-                className="flex items-center gap-2"
-              >
-                <Save className="h-4 w-4" />
-                {saving ? "Saving..." : "Save Terms of Service"}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="privacy">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-gray-700">Privacy Policy</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea
-                value={privacyContent}
-                onChange={(e) => setPrivacyContent(e.target.value)}
-                placeholder="Enter Privacy Policy content..."
-                className="min-h-[400px] resize-none"
-              />
-              <Button
-                onClick={() => saveDocument("privacy", privacyContent)}
-                disabled={saving}
-                className="flex items-center gap-2"
-              >
-                <Save className="h-4 w-4" />
-                {saving ? "Saving..." : "Save Privacy Policy"}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <Card className="p-4">
+        <CardContent className="space-y-4">
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Write the document title"
+          />
+          {isNew && (
+            <Input
+              value={typeInput}
+              onChange={(e) => setTypeInput(e.target.value)}
+              placeholder="Write document type with hyphens between words (e.g., terms-of-service)"
+            />
+          )}
+          <MarkdownEditor
+            value={content}
+            onChange={setContent}
+            placeholder="Write your legal document here using Markdown..."
+          />
+          <Button
+            onClick={saveDocument}
+            disabled={saving}
+            className="flex items-center gap-2"
+          >
+            <Save className="h-4 w-4" />
+            {saving ? "Saving..." : "Save Terms of Service"}
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 };

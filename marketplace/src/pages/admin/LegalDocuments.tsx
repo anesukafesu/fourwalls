@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Edit, Trash2, FileText } from "lucide-react";
@@ -15,16 +14,19 @@ export default function LegalDocuments() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [documentToDelete, setDocumentToDelete] = useState<{id: string, title: string} | null>(null);
+  const [documentToDelete, setDocumentToDelete] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   const { data: documents, isLoading } = useQuery({
-    queryKey: ['legal-documents'],
+    queryKey: ["legal-documents"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('legal_documents')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
+        .from("legal_documents")
+        .select("*")
+        .order("created_at", { ascending: false });
+
       if (error) throw error;
       return data;
     },
@@ -33,14 +35,14 @@ export default function LegalDocuments() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('legal_documents')
+        .from("legal_documents")
         .delete()
-        .eq('id', id);
-      
+        .eq("id", id);
+
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['legal-documents'] });
+      queryClient.invalidateQueries({ queryKey: ["legal-documents"] });
       toast({
         title: "Success",
         description: "Document deleted successfully",
@@ -52,13 +54,13 @@ export default function LegalDocuments() {
         description: "Failed to delete document: " + error.message,
         variant: "destructive",
       });
-    }
+    },
   });
 
   const handleDeleteClick = (document: any) => {
     setDocumentToDelete({
       id: document.id,
-      title: document.title || document.document_type
+      title: document.title || document.document_type,
     });
     setDeleteDialogOpen(true);
   };
@@ -71,14 +73,14 @@ export default function LegalDocuments() {
 
   const getDocumentTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
-      case 'privacy_policy':
-        return 'bg-blue-100 text-blue-800';
-      case 'terms_of_service':
-        return 'bg-green-100 text-green-800';
-      case 'cookie_policy':
-        return 'bg-purple-100 text-purple-800';
+      case "privacy_policy":
+        return "bg-blue-100 text-blue-800";
+      case "terms_of_service":
+        return "bg-green-100 text-green-800";
+      case "cookie_policy":
+        return "bg-purple-100 text-purple-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -99,8 +101,8 @@ export default function LegalDocuments() {
             Manage legal documents and policies
           </p>
         </div>
-        <Button 
-          onClick={() => navigate('/admin/legal-documents/new')}
+        <Button
+          onClick={() => navigate("/admin/legal-documents/new")}
           className="flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
@@ -110,7 +112,10 @@ export default function LegalDocuments() {
 
       <div className="grid gap-4">
         {documents?.map((document) => (
-          <Card key={document.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
+          <Card
+            key={document.id}
+            className="bg-white shadow-sm hover:shadow-md transition-shadow"
+          >
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="space-y-2 flex-1">
@@ -119,29 +124,37 @@ export default function LegalDocuments() {
                     {document.title || document.document_type}
                   </CardTitle>
                   <div className="flex items-center gap-2">
-                    <Badge className={getDocumentTypeColor(document.document_type)}>
-                      {document.document_type.replace('_', ' ').toUpperCase()}
+                    <Badge
+                      className={getDocumentTypeColor(document.document_type)}
+                    >
+                      {document.document_type.replace("_", " ").toUpperCase()}
                     </Badge>
                     <Badge variant="outline" className="text-xs">
-                      Created {new Date(document.created_at).toLocaleDateString()}
+                      Created{" "}
+                      {new Date(document.created_at).toLocaleDateString()}
                     </Badge>
                     <Badge variant="outline" className="text-xs">
-                      Updated {new Date(document.updated_at).toLocaleDateString()}
+                      Updated{" "}
+                      {new Date(document.updated_at).toLocaleDateString()}
                     </Badge>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate(`/admin/legal-documents/${document.id}`)}
+                    onClick={() =>
+                      navigate(
+                        `/admin/legal-documents/${document.document_type}`
+                      )
+                    }
                     className="flex items-center gap-2"
                   >
                     <Edit className="h-4 w-4" />
                     Edit
                   </Button>
-                  
+
                   <Button
                     variant="outline"
                     size="sm"
@@ -163,14 +176,14 @@ export default function LegalDocuments() {
             )}
           </Card>
         ))}
-        
+
         {documents?.length === 0 && (
           <Card className="p-12 text-center bg-white">
             <h3 className="text-lg font-semibold mb-2">No documents found</h3>
             <p className="text-muted-foreground mb-4">
               Get started by creating your first legal document.
             </p>
-            <Button onClick={() => navigate('/admin/legal-documents/new')}>
+            <Button onClick={() => navigate("/admin/legal-documents/new")}>
               <Plus className="h-4 w-4 mr-2" />
               Create Document
             </Button>
