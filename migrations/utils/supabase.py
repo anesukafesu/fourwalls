@@ -16,9 +16,6 @@ def clear_listings_buffer(user_id: str):
   """ Clear the listings buffer for a specific user. """
   try:
     response = supabase.table("listings_buffer").delete().eq("user_id", user_id).execute()
-    print("Clearing listings buffer for:", user_id)
-    if response.error:
-      raise Exception(f"Failed to clear listings buffer: {response.error.message}")
     return response.data
   except Exception as e:
     raise Exception(f"An error occurred while clearing listings buffer: {str(e)}")
@@ -81,8 +78,6 @@ async def upload_properties(properties, user_id, post_ids_to_image_urls_map):
   try:
     insert_resp = supabase.table("properties").insert(formatted_properties).execute()
     inserted = insert_resp.data
-
-    print(f"Inserted {inserted} properties")
 
     if not inserted:
       return {"error": "Failed to insert properties", "details": insert_resp.message}
