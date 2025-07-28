@@ -101,7 +101,7 @@ const FacebookImports = () => {
       console.error('Error fetching listings:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch Facebook imports",
+        description: "Failed to fetch listings from buffer imports",
         variant: "destructive",
       });
     } finally {
