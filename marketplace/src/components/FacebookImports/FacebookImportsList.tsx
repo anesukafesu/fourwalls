@@ -9,7 +9,7 @@ import {
   MessageSquare,
   Image,
 } from "lucide-react";
-import { ListingBuffer } from "./useFacebookImports";
+import { ListingBuffer } from "../../hooks/useFacebookImports";
 
 interface FacebookImportsListProps {
   listings: ListingBuffer[];

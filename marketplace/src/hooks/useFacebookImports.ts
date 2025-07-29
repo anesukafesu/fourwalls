@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -29,7 +29,9 @@ export function useFacebookImports() {
   const [parsing, setParsing] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const codeHandledRef = useRef<string | null>(null);
   const { services } = useServices();
+  const code = searchParams.get("code");
 
   const selectedCount = useMemo(() => selectedIds.size, [selectedIds]);
 
@@ -97,14 +99,16 @@ export function useFacebookImports() {
 
   useEffect(() => {
     if (user) {
-      const code = searchParams.get("code");
-      if (code) {
+      if (code && codeHandledRef.current !== code) {
+        codeHandledRef.current = code;
         handleFacebookCallback(code);
+        searchParams.delete("code");
+        navigate({ search: searchParams.toString() }, { replace: true });
       } else {
         fetchListings();
       }
     }
-  }, [user, searchParams, handleFacebookCallback, fetchListings]);
+  }, [user, code]);
 
   const deleteListing = useCallback(
     async (id: string) => {

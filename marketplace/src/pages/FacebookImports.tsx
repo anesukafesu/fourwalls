@@ -1,5 +1,5 @@
 import React from "react";
-import { useFacebookImports } from "../components/FacebookImports/useFacebookImports";
+import { useFacebookImports } from "../hooks/useFacebookImports";
 import { FacebookImportsList } from "../components/FacebookImports/FacebookImportsList";
 import { FacebookImportsEmpty } from "../components/FacebookImports/FacebookImportsEmpty";
 import { FacebookImportsActions } from "../components/FacebookImports/FacebookImportsActions";
