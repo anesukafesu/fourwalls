@@ -60,7 +60,6 @@ export function useFacebookImports() {
 
   const handleFacebookCallback = useCallback(
     async (code: string) => {
-      console.log("Fetching Facebook data");
       setLoading(false);
       setImporting(true);
       try {
@@ -76,6 +75,8 @@ export function useFacebookImports() {
             body: JSON.stringify({ code, redirect_uri: REDIRECT_URI }),
           }
         );
+
+        console.log(response);
         if (!response.ok) throw response.statusText;
         const result = await response.json();
         toast({
@@ -83,6 +84,8 @@ export function useFacebookImports() {
           description:
             result.message || "Facebook posts processed successfully",
         });
+
+        console.log(result);
         await fetchListings();
       } catch (error) {
         console.error("Error importing from Facebook:", error);
@@ -105,7 +108,7 @@ export function useFacebookImports() {
         handleFacebookCallback(code).then(() => {
           console.log("Request complete.");
           searchParams.delete("code");
-          navigate({ search: searchParams.toString() }, { replace: true });
+          // navigate({ search: searchParams.toString() }, { replace: true });
         });
       } else {
         fetchListings();
