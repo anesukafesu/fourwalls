@@ -44,8 +44,6 @@ const FeaturedProperties = () => {
 
           const { recommended_ids: recommendedIds } = await response.json();
 
-          console.log("Recommended IDs:", recommendedIds);
-
           if (recommendedIds && recommendedIds.length > 0) {
             const { data: properties, error } = await supabase
               .from("properties")
