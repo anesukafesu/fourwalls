@@ -108,7 +108,6 @@ export function useFacebookImports() {
         codeHandledRef.current = code;
         handleFacebookCallback(code).then((complete) => {
           if (complete) {
-            console.log("Request complete.");
             searchParams.delete("code");
             navigate({ search: searchParams.toString() }, { replace: true });
           }
