@@ -62,11 +62,6 @@ export function useFacebookImports() {
       setImporting(true);
       try {
         if (!services || !user || !session?.access_token) return;
-        console.log("Handling Facebook callback with code:", code);
-        console.log("Using services:", services);
-        console.log("User session:", session);
-        console.log("Redirect URI:", REDIRECT_URI);
-        console.log("Facebook App ID:", FACEBOOK_APP_ID);
         const response = await fetch(
           `${services["MIGRATIONS"]}/migrate/facebook`,
           {
