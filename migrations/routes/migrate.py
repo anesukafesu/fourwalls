@@ -13,10 +13,8 @@ def migrate_facebook_posts(payload: Dict[str, str], authorization: str = Header(
   redirect_uri = payload.get("redirect_uri")
 
   if not code:
-    print("Code is required")
     raise HTTPException(status_code=400, detail="Code is required")
   if not redirect_uri:
-    print("Redirect URI is required")
     raise HTTPException(status_code=400, detail="Redirect URI is required")
 
   facebook_app_id = os.getenv("FACEBOOK_APP_ID")
@@ -38,12 +36,10 @@ def migrate_facebook_posts(payload: Dict[str, str], authorization: str = Header(
   token_data = token_response.json()
 
   if "error" in token_data:
-    print(f"Error fetching access token: {token_data['error']}")
     raise HTTPException(status_code=400, detail=token_data["error"])
 
   # Extract Bearer token
   if not authorization.startswith("Bearer "):
-    print("Invalid authorization header format")
     raise HTTPException(status_code=401, detail="Invalid authorization header format")
   token = authorization.split("Bearer ")[-1].strip()
 
