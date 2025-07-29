@@ -101,9 +101,11 @@ export function useFacebookImports() {
     if (user) {
       if (code && codeHandledRef.current !== code) {
         codeHandledRef.current = code;
-        handleFacebookCallback(code);
-        searchParams.delete("code");
-        navigate({ search: searchParams.toString() }, { replace: true });
+        handleFacebookCallback(code).then(() => {
+          console.log("Request complete. Now cleaning up.");
+          searchParams.delete("code");
+          navigate({ search: searchParams.toString() }, { replace: true });
+        });
       } else {
         fetchListings();
       }
