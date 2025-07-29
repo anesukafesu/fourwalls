@@ -60,6 +60,7 @@ export function useFacebookImports() {
 
   const handleFacebookCallback = useCallback(
     async (code: string) => {
+      console.log("Fetching Facebook data");
       setLoading(false);
       setImporting(true);
       try {
@@ -102,7 +103,7 @@ export function useFacebookImports() {
       if (code && codeHandledRef.current !== code) {
         codeHandledRef.current = code;
         handleFacebookCallback(code).then(() => {
-          console.log("Request complete. Now cleaning up.");
+          console.log("Request complete.");
           searchParams.delete("code");
           navigate({ search: searchParams.toString() }, { replace: true });
         });
