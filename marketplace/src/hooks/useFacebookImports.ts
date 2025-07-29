@@ -63,7 +63,7 @@ export function useFacebookImports() {
       setLoading(false);
       setImporting(true);
       try {
-        if (!services || !user || !session?.access_token) return;
+        if (!services || !user || !session?.access_token) return false;
         const response = await fetch(
           `${services["MIGRATIONS"]}/migrate/facebook`,
           {
@@ -76,7 +76,6 @@ export function useFacebookImports() {
           }
         );
 
-        console.log(response);
         if (!response.ok) throw response.statusText;
         const result = await response.json();
         toast({
@@ -85,8 +84,7 @@ export function useFacebookImports() {
             result.message || "Facebook posts processed successfully",
         });
 
-        console.log(result);
-        await fetchListings();
+        return true;
       } catch (error) {
         console.error("Error importing from Facebook:", error);
         toast({
@@ -105,10 +103,12 @@ export function useFacebookImports() {
     if (user) {
       if (code && codeHandledRef.current !== code) {
         codeHandledRef.current = code;
-        handleFacebookCallback(code).then(() => {
-          console.log("Request complete.");
-          searchParams.delete("code");
-          // navigate({ search: searchParams.toString() }, { replace: true });
+        handleFacebookCallback(code).then((complete) => {
+          if (complete) {
+            console.log("Request complete.");
+            searchParams.delete("code");
+            navigate({ search: searchParams.toString() }, { replace: true });
+          }
         });
       } else {
         fetchListings();
