@@ -1,15 +1,5 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useRef,
-} from "react";
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,7 +32,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isTyping, setIsTyping] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const { services, loading: servicesLoading, error: servicesError } = useServices();
+  const {
+    services,
+    loading: servicesLoading,
+    error: servicesError,
+  } = useServices();
   const chatUrl = `${services?.["CHAT"]}/chat`;
 
   const {
@@ -119,7 +113,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
             handleSendMessage(prefillFromUrl);
           }, 1000);
         }
-        
       } else {
         const sessionExists = sessions?.some((s) => s.id === sessionFromUrl);
         if (!sessionExists) {
@@ -299,7 +292,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     queryKey: ["chat-profiles", currentSessionId],
     queryFn: async () => {
       if (!messages) return [];
-      const userIds = [...new Set(messages.map((m) => m.sent_by))];
+      const userIds = [
+        ...new Set(messages.map((m) => m.sent_by).filter(Boolean)),
+      ];
+
+      if (userIds.length === 0) {
+        return []; // no need to query
+      }
+
       const { data, error } = await supabase
         .from("profiles")
         .select("id, full_name, avatar_url")
