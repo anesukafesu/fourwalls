@@ -63,7 +63,10 @@ export function useFacebookImports() {
       setLoading(false);
       setImporting(true);
       try {
-        if (!services || !user || !session?.access_token) return false;
+        if (!services || !user || !session?.access_token) {
+          codeHandledRef.current = null;
+          return false;
+        }
         const response = await fetch(
           `${services["MIGRATIONS"]}/migrate/facebook`,
           {
@@ -102,10 +105,10 @@ export function useFacebookImports() {
   useEffect(() => {
     if (user) {
       if (code && codeHandledRef.current !== code) {
+        codeHandledRef.current = code;
         handleFacebookCallback(code).then((complete) => {
           if (complete) {
             console.log("Request complete.");
-            codeHandledRef.current = code;
             searchParams.delete("code");
             navigate({ search: searchParams.toString() }, { replace: true });
           }
